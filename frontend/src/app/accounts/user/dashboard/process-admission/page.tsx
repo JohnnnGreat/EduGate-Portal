@@ -1,5 +1,6 @@
 "use client";
 import StepOne from "@/components/dashboard/admission/steps/StepOne";
+import StepTwo from "@/components/dashboard/admission/steps/StepTwo";
 import { useSearchParams } from "next/navigation";
 import React from "react";
 
@@ -10,10 +11,10 @@ const AdmissionProcessPage = () => {
    if (stepLevel == 0) {
       return <StepOne />;
    }
-   if (stepLevel === 1) {
-      return <div>Second Step</div>;
+   if (stepLevel == 1) {
+      return <StepTwo />;
    }
-   if (stepLevel === 3) {
+   if (stepLevel == 2) {
       return <div>Third</div>;
    }
 

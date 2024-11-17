@@ -14,7 +14,12 @@ const IntroHeader = () => {
             information at each stage. By clicking 'Start Your Application', you’ll begin your personalized admission
             process. Let’s get started on this exciting journey together!
          </p>
-         <Link href="/accounts/user/dashboard/process-admission?idx=0">Start Application</Link>
+         <Link
+            className="bg-[#02333F] py-[1rem] rounded text-[#000]/80 px-[2rem] font-bold inline-block"
+            href="/accounts/user/dashboard/process-admission?idx=0"
+         >
+            Start Application
+         </Link>
       </div>
    );
 };

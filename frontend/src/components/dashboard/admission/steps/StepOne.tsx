@@ -1,11 +1,16 @@
 "use client";
+import SelectField from "@/components/form/SelectField";
 import TextField from "@/components/form/TextField";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { createAdmission } from "@/lib/api/admission";
 
 const stepOneSchema = z.object({
    email: z.string().min(2, {
@@ -13,6 +18,8 @@ const stepOneSchema = z.object({
    }),
    fullName: z.string().min(6, { message: " Full Name must be at least 6 characters" }),
    address: z.string().min(6, { message: " Address must be at least 6 characters" }),
+   gender: z.string(),
+   phoneNumber: z.string().min(6, { message: " Phone Number must be at least 6 characters" }),
 });
 
 const StepOne = () => {
@@ -21,17 +28,39 @@ const StepOne = () => {
       defaultValues: {},
    });
 
+   const [isError, setIsError] = useState(false);
+
+   const router = useRouter();
+
+   const { mutateAsync, isPending, data } = useMutation({
+      mutationFn: (values: z.infer<typeof stepOneSchema>) => createAdmission(values),
+      onError: (error: any) => {
+         toast.error(error.message);
+         setIsError(true);
+      },
+
+      onSuccess: (data) => {
+         toast.success(data.message);
+         console.log(data);
+         sessionStorage.setItem("accesstoken", data.access);
+         sessionStorage.setItem("refreshtoken", data.refresh);
+
+         router.push(`http://localhost:3000/accounts/user/dashboard/process-admission?idx=${1}`);
+      },
+   });
+
    // Destructure isValid and isSubmitting from formState
    const { isValid, isSubmitting } = form.formState;
 
    async function onSubmit(values: z.infer<typeof stepOneSchema>) {
-      console.log(values);
+      await mutateAsync(values);
+      await form.reset();
    }
 
    return (
       <div className="p-[2rem] bg-white rounded-[20px] mt-[1rem]">
          <h1 className="text-[1.3rem] font-bold mb-[.3rem]">Your Personal Information</h1>
-         <p className="text-[.8rem] text-[#000]/40">Let’s start by getting to know you better</p>
+         <p className="text-[1rem] text-[#000]/40">Let’s start by getting to know you better</p>
 
          <div>
             <Form {...form}>
@@ -47,11 +76,38 @@ const StepOne = () => {
                      name="email"
                      classname="border-[1px!important] bg-[#dadada3d]"
                   />
+                  <div>
+                     <SelectField
+                        items={[
+                           {
+                              label: "Male",
+                              value: "Male",
+                           },
+                           {
+                              label: "Female",
+                              value: "Female",
+                           },
+                        ]}
+                        name="gender"
+                        placeholder="Choose Gender"
+                        label="Gender"
+                        form={form}
+                        classname="border-[1px!important] bg-[#dadada3d]"
+                     />
+                  </div>
+
                   <TextField
                      placeholder="John Doe"
                      label="Full Name"
                      form={form}
                      name="fullName"
+                     classname="border-[1px!important] bg-[#dadada3d]"
+                  />
+                  <TextField
+                     placeholder="9038457675"
+                     label="Phone Number"
+                     form={form}
+                     name="phoneNumber"
                      classname="border-[1px!important] bg-[#dadada3d]"
                   />
                   <TextField
