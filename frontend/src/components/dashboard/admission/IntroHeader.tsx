@@ -23,6 +23,11 @@ const IntroHeader = () => {
          href: "/accounts/user/dashboard/process-admission?idx=2",
          active: stepLevel === "2", // Determine if this step is active
       },
+      {
+         title: "Review Application",
+         href: "/accounts/user/dashboard/process-admission?idx=3",
+         active: stepLevel === "3", // Determine if this step is active
+      },
    ];
 
    // Check if Application has been started

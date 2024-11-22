@@ -3,11 +3,11 @@ import { updateAdmission } from "@/lib/api/admission";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Loader2, Save, Upload } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
-const FileUpload = () => {
+const StepThree = () => {
    const [selectedBirthCertificate, setSelectedBirthCertificate] = useState(null);
    const [selectedOLevelResults, setSelectedOLevelResults] = useState(null);
    const [uploadStatus, setUploadStatus] = useState({
@@ -109,29 +109,50 @@ const FileUpload = () => {
       onSuccess: (data) => {
          console.log(data);
          toast.success(data.message);
-         //  router.push(`/accounts/user/dashboard/process-admission?idx=${1}`);
+         router.push(`/accounts/user/dashboard/process-admission?idx=${3}`);
          //  const currentLevel = Number(applicationLevel) + 1;
          //  localStorage.setItem("applicationLevel", currentLevel.toString());
       },
    });
    const handleSaveInformation = async () => {
+      // Log the values for debugging (ensure to remove in production)
       console.log(birthCertificate, oLevel);
 
-      // Shape Payload
-
+      // Validate that the required files are uploaded
       if (!birthCertificate) {
-         return toast.error("You havent uploaded birth certificate");
+         return toast.error("Please upload your birth certificate.");
       }
       if (!oLevel) {
-         return toast.error("you havent uploaded oLevel");
+         return toast.error("Please upload your O-Level result.");
       }
 
+      // Prepare the payload for the API request
       const payload = {
-         birthCertificate: birthCertificate,
+         birthCertificate,
          oLevelResult: oLevel,
       };
 
-      await mutateAsync(payload);
+      try {
+         // Call the mutation function to save the information
+         await mutateAsync(payload);
+
+         // Optionally notify the user that the information has been saved successfully
+         toast.success("Information saved successfully!");
+      } catch (error) {
+         // Handle potential errors that may occur during the mutation
+         console.error("Error saving information:", error);
+         toast.error("An error occurred while saving the information. Please try again.");
+      }
+   };
+
+   let stepLevel = useSearchParams().get("idx");
+
+   const handlePrevious = () => {
+      router.push(
+         `http://localhost:3000/accounts/user/dashboard/process-admission?idx=${
+            Number(stepLevel) - 1
+         }`,
+      );
    };
 
    return (
@@ -241,19 +262,29 @@ const FileUpload = () => {
                )}
             </div>
          </div>
-
-         <Button
-            className="bg-[#02333F] py-[1.6rem] px-[2rem] font-bold"
-            type="submit"
-            onClick={handleSaveInformation}
-            // disabled={!isError || isSubmitting} // Disable the button if form is invalid or submitting
-         >
-            {" "}
-            <Save />
-            Save and Continue
-         </Button>
+         <div className="flex gap-3">
+            {stepLevel !== "0" && (
+               <Button
+                  className="text-[#02333F] bg-transparent hover:bg-[#02333f31] border border-[#02333F] py-[1.6rem] px-[2rem] font-bold"
+                  type="button"
+                  onClick={handlePrevious}
+               >
+                  Previous
+               </Button>
+            )}
+            <Button
+               className="bg-[#02333F] py-[1.6rem] px-[2rem] font-bold"
+               type="submit"
+               onClick={handleSaveInformation}
+               // disabled={!isError || isSubmitting} // Disable the button if form is invalid or submitting
+            >
+               {" "}
+               <Save />
+               Save and Continue
+            </Button>
+         </div>
       </div>
    );
 };
 
-export default FileUpload;
+export default StepThree;

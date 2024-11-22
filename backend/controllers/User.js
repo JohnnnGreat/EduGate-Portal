@@ -313,21 +313,11 @@ const getUserInformation = async (req, res) => {
       }
 
       // Prepare user data for response (excluding sensitive information like password)
-      const userData = {
-         _id: user._id,
-         firstName: user.firstName,
-         lastName: user.lastName,
-         email: user.email,
-         studentStatus: user.studentStatus,
-         profilePicture: user.profilePicture,
-         dateRegistered: user.dateRegistered,
-         lastLogin: user.lastLogin,
-      };
 
       // Return user data
       return res.status(200).json({
          message: "User information retrieved successfully",
-         data: userData,
+         data: user,
       });
    } catch (error) {
       console.error("Get user information error:", error);

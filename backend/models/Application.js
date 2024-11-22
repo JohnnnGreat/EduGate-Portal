@@ -38,8 +38,8 @@ const AdmissionSchema = new Schema({
    },
    status: {
       type: String,
-      enum: ["Admitted", "Provisional", "Withdrawn", "Graduated", "Suspended"],
-      default: "Provisional",
+      enum: ["Admitted", "Not Admitted", "Withdrawn", "Graduated", "Suspended"],
+      default: "Not Admitted",
    },
    dateOfAdmission: {
       type: Date,

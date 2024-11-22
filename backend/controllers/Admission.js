@@ -91,8 +91,15 @@ const getAdmissionByUserId = async (req, res) => {};
 
 // 5. Update Admission Information
 const updateAdmission = async (req, res) => {
-   const { academicSession, department, faculty, modeOfEntry, birthCertificate, oLevelResult } =
-      req.body;
+   const {
+      academicSession,
+      department,
+      faculty,
+      modeOfEntry,
+      birthCertificate,
+      oLevelResult,
+      submitted,
+   } = req.body;
    try {
       const existingAdmission = await Admission.find({ admissionNumber: req.user.admissionNumber });
 
@@ -106,6 +113,7 @@ const updateAdmission = async (req, res) => {
             "program.modeOfEntry": modeOfEntry,
             "documents.birthCertificate": birthCertificate ?? "",
             "documents.oLevelResult": oLevelResult ?? "",
+            submitted,
          },
          { new: true, runValidators: true },
       );
