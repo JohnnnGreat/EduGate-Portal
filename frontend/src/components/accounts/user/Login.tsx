@@ -5,13 +5,21 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+   Form,
+   FormControl,
+   FormDescription,
+   FormField,
+   FormItem,
+   FormLabel,
+   FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 
 import { toast } from "react-toastify";
-import { checkUserAdmission, loginUserDashboard } from "@/lib/api/user";
+import { loginUserDashboard } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
 
 const userSchema = z.object({
@@ -36,8 +44,8 @@ const LoginComponent = () => {
       onSuccess: (data) => {
          toast.success(data.message);
          console.log(data);
-         sessionStorage.setItem("accesstoken", data.access);
-         sessionStorage.setItem("refreshtoken", data.refresh);
+         localStorage.setItem("EdAccess", data.access);
+         localStorage.setItem("EdRefresh", data.refresh);
 
          router.push("/accounts/user/dashboard");
       },

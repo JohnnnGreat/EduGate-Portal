@@ -1,14 +1,14 @@
 const jwt = require("jsonwebtoken");
 const generateTokens = (user) => {
-   // Generate access token
    const accessToken = jwt.sign(
       {
          userId: user._id,
          email: user.email,
          studentStatus: user.studentStatus,
+         admissionNumber: user.admissionNumber,
       },
       "RANDOM",
-      { expiresIn: "15m" }, // Short lived access token
+      { expiresIn: "7d" },
    );
 
    // Generate refresh token

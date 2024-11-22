@@ -41,3 +41,5 @@ export const fetchUserData = async () => {
       throw new Error("An unexpected error occurred");
    }
 };
+
+export const fetchAdmissionInformation = async () => {};

@@ -25,6 +25,10 @@ const AcademicSchema = new Schema({
       type: String,
       required: true,
    },
+   faculty: {
+      type: String,
+      required: true,
+   },
    currentSemester: {
       type: String,
       required: true,

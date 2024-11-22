@@ -1,20 +1,23 @@
+"use client";
+
 import axios from "axios";
 
-let accessToken;
-
-if (typeof window !== "undefined" && sessionStorage) {
-   accessToken = sessionStorage.getItem("accesstoken");
-}
-
-console.log(accessToken);
-
-// Create an Axios instance with a custom configuration
+// Create the axios instance without the initial token
 const axiosUserClient = axios.create({
-   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api", // Fallback to localhost if not defined
+   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api",
    headers: {
       "Content-Type": "application/json",
-      Authorization: accessToken ? `Bearer ${accessToken}` : "",
    },
+});
+
+// Add a request interceptor to get the latest token before each request
+axiosUserClient.interceptors.request.use((config) => {
+   const token = localStorage.getItem("EdAccess");
+   console.log(token);
+   if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+   }
+   return config;
 });
 
 export default axiosUserClient;

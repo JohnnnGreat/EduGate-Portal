@@ -1,9 +1,41 @@
 import React from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+} from "@/components/ui/select";
 import { Label } from "../ui/label";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+   Form,
+   FormControl,
+   FormDescription,
+   FormField,
+   FormItem,
+   FormLabel,
+   FormMessage,
+} from "@/components/ui/form";
 
-const SelectField = ({ form, items, placeholder, label, name, classname, onValueChange }: { item: any[] }) => {
+interface SelectFieldProps {
+   form: any; // Define your form type, e.g., React Hook Form's `useForm` return type
+   items: { label: string; value: string }[]; // Array of items, each with a label and value
+   placeholder: string;
+   label: string;
+   name: string;
+   classname?: string; // Optional classname
+   onValueChange?: (value: string) => void; // Optional callback on value change
+}
+
+const SelectField = ({
+   form,
+   items,
+   placeholder,
+   label,
+   name,
+   classname,
+   onValueChange,
+}: SelectFieldProps) => {
    return (
       <FormField
          control={form.control}
@@ -12,12 +44,16 @@ const SelectField = ({ form, items, placeholder, label, name, classname, onValue
             <FormItem>
                <FormLabel>{label}</FormLabel>
                <Select
-                  onValueChange={onValueChange}
-                  defaultValue={field.value}
+                  onValueChange={(value) => {
+                     field.onChange(value);
+                     onValueChange?.(value);
+                  }}
                   value={field.value}
                >
                   <FormControl>
-                     <SelectTrigger className={`bg-white py-[1.6rem] shadow-none px-[1rem] outline-none  ${classname}`}>
+                     <SelectTrigger
+                        className={`bg-white py-[1.6rem] shadow-none px-[1rem] outline-none ${classname}`}
+                     >
                         <SelectValue placeholder={placeholder} />
                      </SelectTrigger>
                   </FormControl>

@@ -10,35 +10,29 @@ const AdmissionSchema = new Schema({
    admissionNumber: {
       type: String,
       required: true,
-      unique: true,
    },
+
    academicSession: {
       type: String,
-      required: true,
-      // Example: "2023/2024"
    },
    program: {
       faculty: {
          type: String,
-         required: true,
       },
       department: {
          type: String,
-         required: true,
       },
       level: {
          type: String,
-         required: true,
          // Example: "100 Level", "200 Level", etc.
       },
       modeOfEntry: {
          type: String,
          enum: ["UTME", "Direct Entry", "Transfer"],
-         required: true,
       },
       courseDuration: {
          type: Number,
-         required: true,
+
          // Number of years for the program (e.g., 4, 5, 6 years)
       },
    },
@@ -49,17 +43,15 @@ const AdmissionSchema = new Schema({
    },
    dateOfAdmission: {
       type: Date,
-      required: true,
    },
    jambRegistrationNumber: {
       type: String,
-      required: true,
+
       unique: true,
    },
    admissionType: {
       type: String,
       enum: ["Full-Time", "Part-Time", "Sandwich", "Distance Learning"],
-      required: true,
    },
    isAdmissionConfirmed: {
       type: Boolean,
@@ -70,22 +62,20 @@ const AdmissionSchema = new Schema({
          {
             examType: {
                type: String,
-               required: true,
+
                // Example: "WAEC", "NECO", "GCE"
             },
             examYear: {
                type: Number,
-               required: true,
             },
             subjects: [
                {
                   subjectName: {
                      type: String,
-                     required: true,
                   },
                   grade: {
                      type: String,
-                     required: true,
+
                      // Example: "A1", "B2", "C4", etc.
                   },
                },
@@ -134,6 +124,10 @@ const AdmissionSchema = new Schema({
    updatedAt: {
       type: Date,
       default: Date.now,
+   },
+   submitted: {
+      type: Boolean,
+      default: false,
    },
 });
 
