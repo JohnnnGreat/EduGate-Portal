@@ -12,7 +12,7 @@
 @font-face {
    font-family: "AeonikTRIAL";
    src: url("/fonts/AeonikTRIAL-Light.otf") format("opentype");
-   font-weight: 300;
+   font-weight: light;
    font-style: normal;
 }
 

@@ -1,5 +1,9 @@
+const { default: axios } = require("axios");
+const generateAdmissionPDF = require("../createpdf");
 const Admission = require("../models/Application");
 const User = require("../models/User");
+const { getDeparmentLabel, getFacultyLabel } = require("../utils");
+const FormData = require("form-data");
 
 // 1. Create a New Admission
 const createAdmission = async (req, res) => {
@@ -117,12 +121,57 @@ const updateAdmission = async (req, res) => {
          },
          { new: true, runValidators: true },
       );
+
+      if (updateAdmission) {
+         // Prepare Information
+         const user = await User.findById(req.user.userId);
+
+         const applicationData = {
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user?.email,
+            dob: "10/12/2002",
+            admissionNo: user.admissionNumber,
+            admissionStatus: "Not Admitted",
+            department: getDeparmentLabel(
+               updatedAdmission?.program?.faculty,
+               updatedAdmission?.program?.department,
+            ),
+            faculty: getFacultyLabel(updatedAdmission?.program.faculty),
+            modeOfEntry: updatedAdmission?.program?.modeOfEntry,
+         };
+
+         const pdfBuffer = await generateAdmissionPDF(applicationData);
+
+         // Send PDF to another endpoint
+         const formData = new FormData();
+
+         formData.append("file", pdfBuffer, {
+            filename: "admission-summary.pdf",
+            contentType: "application/pdf",
+         });
+
+         const response = await axios.post("http://localhost:9000/upload", formData, {
+            headers: {
+               ...formData.getHeaders(),
+            },
+         });
+
+         const { fileUrl } = response.data;
+
+         const updatedFile = await Admission.findByIdAndUpdate(
+            existingAdmission[0]._id,
+            {
+               fileUrl,
+            },
+            { new: true, runValidators: true },
+         );
+      }
+
       return res.status(200).json({
          message: "Admission Updated Successfully",
          admission: updatedAdmission,
       });
    } catch (error) {
-      console.log(error);
       return res.status(500).json({
          message: "An Error Occured While Registering",
          type: "INTERNAL_SERVER_ERROR",

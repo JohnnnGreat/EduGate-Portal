@@ -129,6 +129,9 @@ const AdmissionSchema = new Schema({
       type: Boolean,
       default: false,
    },
+   fileUrl: {
+      type: String,
+   },
 });
 
 AdmissionSchema.pre("save", function (next) {

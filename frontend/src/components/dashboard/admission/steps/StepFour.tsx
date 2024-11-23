@@ -9,7 +9,6 @@ import { updateAdmission } from "@/lib/api/admission";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useReactToPrint } from "react-to-print";
-import { jsPDF } from "jspdf";
 
 const StepFour = () => {
    const { data: response } = useUserData();
@@ -73,56 +72,12 @@ const StepFour = () => {
          //  localStorage.setItem("applicationLevel", currentLevel.toString());
       },
    });
-   const documentRef = useRef(null);
-   const handlePrint = useReactToPrint({
-      contentRef: documentRef,
-      documentTitle: "application", // You can set a custom title for the document
-      onAfterPrint: () => {
-         console.log("hello");
-         generatePDF(); // Call the PDF generation function after printing
-      },
-   });
 
-   const generatePDF = () => {
-      const doc = new jsPDF();
-
-      // Get the content to be printed from the componentRef
-      const content = document.current;
-      console.log(content);
-      // You can either use html2canvas or just add the content as is.
-      // Here we are adding content directly as text for simplicity.
-      doc.html(content, {
-         callback: function (doc) {
-            const pdfFile = doc.output("blob");
-            console.log(pdfFile); // Generate PDF as Blob
-            uploadPDF(pdfFile); // Upload the PDF after generating
-         },
-      });
+   const handleSubmitApplication = () => {
+      mutateAsync({ submitted: true });
    };
 
-   const uploadPDF = (file) => {
-      // Create a FormData object to send the file as multipart/form-data
-      console.log(file);
-      // const formData = new FormData();
-      // formData.append('file', file);
-
-      // // Use fetch or Axios to upload the file to your server
-      // fetch('/upload-endpoint', {
-      //   method: 'POST',
-      //   body: formData,
-      // })
-      //   .then(response => response.json())
-      //   .then(data => {
-      //     console.log('Upload successful', data);
-      //   })
-      //   .catch((error) => {
-      //     console.error('Error uploading file', error);
-      //   });
-   };
-
-   const handleSubmitApplication = async () => {
-      handlePrint();
-   };
+   const document = useRef(null);
 
    return (
       <div className="p-[2rem] bg-white rounded-[20px] mt-[1rem]">
@@ -131,7 +86,7 @@ const StepFour = () => {
             Take a moment to review everything you’ve entered. If all looks good, submit your
             application!
          </p>
-         <div ref={documentRef}>
+         <div ref={document}>
             <h1 className="text-[1.3rem] mt-[1rem] font-bold">Personal Information</h1>
             <div className="grid grid-cols-2 gap-[1rem]">
                <div>
@@ -219,7 +174,7 @@ const StepFour = () => {
                   className="bg-[#02333F] py-[1.6rem] px-[2rem] font-bold"
                   type="submit"
                   disabled={!isInformationCorrect} // Disable button if checkbox is not checked
-                  onClick={handlePrint}
+                  onClick={handleSubmitApplication}
                >
                   <Save />
                   Submit Application
