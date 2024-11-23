@@ -5,7 +5,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+   Form,
+   FormControl,
+   FormDescription,
+   FormField,
+   FormItem,
+   FormLabel,
+   FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
@@ -13,6 +21,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { checkUserAdmission } from "@/lib/api/user";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const userSchema = z.object({
    email: z.string().min(2, {
@@ -21,7 +30,9 @@ const userSchema = z.object({
 });
 
 const CheckAdmissionStatus = () => {
+   const router = useRouter();
    const [isError, setIsError] = useState(false);
+   const [email, setEmail] = useState("");
    const { mutateAsync, isPending, data } = useMutation({
       mutationFn: (values: z.infer<typeof userSchema>) => checkUserAdmission(values, toast),
       onError: (error) => {
@@ -29,7 +40,13 @@ const CheckAdmissionStatus = () => {
          setIsError(true);
       },
 
-      onSuccess: (data) => {},
+      onSuccess: (data) => {
+         const admissionStatus = data?.admissionStatus;
+
+         router.push(
+            `/admission/check-admission/response?status=${admissionStatus}&email?=${email}`,
+         );
+      },
    });
 
    const form = useForm<z.infer<typeof userSchema>>({
@@ -40,6 +57,7 @@ const CheckAdmissionStatus = () => {
    });
 
    async function onSubmit(values: z.infer<typeof userSchema>) {
+      setEmail(values.email);
       await mutateAsync(values);
    }
    return (
@@ -47,8 +65,8 @@ const CheckAdmissionStatus = () => {
          <div className="w-full md:w-[500px]">
             <h1 className="font-bold text-[#000]/80 text-[25px]">Check Admission Status</h1>
             <p className="leading-relaxed text-[#000]/45">
-               Disclaimer: If your admission is successful, you will be redirected to the acceptance payment page to
-               complete the process.
+               Disclaimer: If your admission is successful, you will be redirected to the acceptance
+               payment page to complete the process.
             </p>
             <Form {...form}>
                <form
@@ -91,7 +109,8 @@ const CheckAdmissionStatus = () => {
                         href="/admission/register"
                         className="text-red-500 text-[.8rem] underline"
                      >
-                        We could not find an account associated with the provided email and admission ID
+                        We could not find an account associated with the provided email and
+                        admission ID
                      </Link>
                   )}
                </form>

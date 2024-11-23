@@ -51,8 +51,8 @@ const UserSchema = new Schema(
       },
       studentStatus: {
          type: String,
-         enum: ["Pending", "Admitted", "Graduated", "Suspended"],
-         default: "Pending",
+         enum: ["Admitted", "Not Admitted", "Withdrawn", "Graduated", "Suspended"],
+         default: "Not Admitted",
       },
       dateRegistered: {
          type: Date,

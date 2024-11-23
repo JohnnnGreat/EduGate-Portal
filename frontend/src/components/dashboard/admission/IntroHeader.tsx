@@ -54,7 +54,8 @@ const IntroHeader = () => {
 
    const router = useRouter();
    const handleNavChange = (item) => {
-      router.push(item.href);
+      console.log(item);
+      router.push(item?.href);
    };
 
    const isApplied = response?.data?.submitted ?? false;
@@ -107,7 +108,9 @@ const IntroHeader = () => {
                                  : "bg-transparent text-[#02333F]  border-[#02333f80] border-[2px]"
                            } py-[1rem] px-[1.3rem] rounded-[10px] shadow`}
                            disabled={setDisabled}
-                           onClick={handleNavChange}
+                           onClick={() => {
+                              handleNavChange(item);
+                           }}
                         >
                            {item.title}
                         </button>

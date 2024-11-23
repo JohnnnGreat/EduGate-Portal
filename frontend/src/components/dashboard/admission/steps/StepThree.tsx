@@ -4,19 +4,19 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Loader2, Save, Upload } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
 
 const StepThree = () => {
-   const [selectedBirthCertificate, setSelectedBirthCertificate] = useState(null);
-   const [selectedOLevelResults, setSelectedOLevelResults] = useState(null);
+   const [selectedBirthCertificate, setSelectedBirthCertificate] = useState<File | null>(null);
+   const [selectedOLevelResults, setSelectedOLevelResults] = useState<File | null>(null);
    const [uploadStatus, setUploadStatus] = useState({
       birthCertificate: "",
       oLevelResults: "",
    });
 
-   const [birthCertificate, setBirthCertificate] = useState("");
-   const [oLevel, setOLevel] = useState("");
+   const [birthCertificate, setBirthCertificate] = useState<String>("");
+   const [oLevel, setOLevel] = useState<String>("");
    const [uploadProgress, setUploadProgress] = useState({
       birthCertificate: 0,
       oLevelResults: 0,
@@ -27,19 +27,24 @@ const StepThree = () => {
       oLevel: false,
    });
 
-   const handleFileChange = (event, type) => {
-      if (type === "birthCertificate") {
-         setSelectedBirthCertificate(event.target.files[0]);
-         setUploadStatus({ ...uploadStatus, birthCertificate: "" });
-         setUploadProgress({ ...uploadProgress, birthCertificate: 0 });
-      } else {
-         setSelectedOLevelResults(event.target.files[0]);
-         setUploadStatus({ ...uploadStatus, oLevelResults: "" });
-         setUploadProgress({ ...uploadProgress, oLevelResults: 0 });
+   const handleFileChange = (
+      event: ChangeEvent<HTMLInputElement>,
+      type: "birthCertificate" | "oLevelResults",
+   ) => {
+      if (event.target.files && event.target.files[0]) {
+         if (type === "birthCertificate") {
+            setSelectedBirthCertificate(event.target.files[0]);
+            setUploadStatus((prevStatus) => ({ ...prevStatus, birthCertificate: "" }));
+            setUploadProgress((prevProgress) => ({ ...prevProgress, birthCertificate: 0 }));
+         } else {
+            setSelectedOLevelResults(event.target.files[0]);
+            setUploadStatus((prevStatus) => ({ ...prevStatus, oLevelResults: "" }));
+            setUploadProgress((prevProgress) => ({ ...prevProgress, oLevelResults: 0 }));
+         }
       }
    };
 
-   const handleUpload = async (type) => {
+   const handleUpload = async (type: string) => {
       if (type === "birthCertificate") {
          setLoader((prevLoader) => ({ ...prevLoader, birthCertification: true }));
       } else {
@@ -88,10 +93,17 @@ const StepThree = () => {
             }));
          }
       } catch (error) {
-         setUploadStatus((prevStatus) => ({
-            ...prevStatus,
-            [type]: "Error uploading file: " + error.message,
-         }));
+          if (error instanceof Error) {
+             setUploadStatus((prevStatus) => ({
+                ...prevStatus,
+                [type]: "Error uploading file: " + error.message,
+             }));
+          } else {
+             setUploadStatus((prevStatus) => ({
+                ...prevStatus,
+                [type]: "An unknown error occurred during file upload.",
+             }));
+          }
       } finally {
          setLoader((prevLoader) => ({ ...prevLoader, birthCertification: false, oLevel: false }));
       }
@@ -100,7 +112,7 @@ const StepThree = () => {
    const [isError, setIsError] = useState(false);
    const router = useRouter();
    const { mutateAsync, isPending } = useMutation({
-      mutationFn: (values: { birthCertificate: string; oLevelResult: string }) =>
+      mutationFn: (values: { birthCertificate: String; oLevelResult: String }) =>
          updateAdmission(values),
       onError: (error: any) => {
          toast.error(error.message);

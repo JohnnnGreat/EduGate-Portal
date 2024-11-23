@@ -47,6 +47,7 @@ const checkIfAdmitted = async (req, res) => {
          // If the student is not admitted, send a message
          return res.status(200).json({
             message: "User has not been admitted yet. Please check back later.",
+            admissionStatus: user.studentStatus,
          });
       }
    } catch (error) {
@@ -89,7 +90,7 @@ const registerNewStudent = async (req, res) => {
          ...userInformationPayload,
          password: hashedPassword,
          admissionNumber: admissionNumber,
-         studentStatus: "Pending",
+         studentStatus: "Not Admitted",
       });
 
       // Save the user

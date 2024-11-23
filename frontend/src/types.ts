@@ -1,3 +1,5 @@
+import { ChangeEvent } from "react";
+
 export interface AdmissionResponse {
    message: string;
    // add other response data types if any
@@ -15,6 +17,10 @@ export interface User {
    studentStatus?: "Pending" | "Admitted" | "Graduated" | "Suspended";
    dateRegistered: Date;
    lastLogin: Date;
+   data?: {
+      message: string;
+   };
+   message?: string;
 }
 
 export interface Users {
@@ -33,4 +39,23 @@ export interface LoginResponse {
    user: User;
 }
 
+export interface ProfileInformation extends User {
+   admissionNumber: string;
+}
+export interface Program {
+   department: string;
+   faculty: string;
+   modeOfEntry: string;
+}
+export interface AdmissionInformation extends User {
+   data: {
+      program: Program;
+      status: string;
+   };
+}
+
+export interface File {
+   event: ChangeEvent<HTMLInputElement>;
+   type: "birthCertificate" | "oLevelResults";
+}
 export interface Register extends Login {}

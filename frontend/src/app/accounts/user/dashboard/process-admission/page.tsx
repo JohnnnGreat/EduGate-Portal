@@ -12,20 +12,20 @@ const AdmissionProcessPage = () => {
    const stepLevel = useSearchParams().get("idx");
    console.log(stepLevel);
 
-   if (stepLevel == 0) {
+   if (stepLevel === "0") {
       return <StepOne />;
    }
-   if (stepLevel == 1) {
+   if (stepLevel === "1") {
       return <StepTwo />;
    }
-   if (stepLevel == 2) {
+   if (stepLevel === "2") {
       return <StepThree />;
    }
 
-   if (stepLevel == 3) {
+   if (stepLevel === "3") {
       return <StepFour />;
    }
-   if (stepLevel == 4) {
+   if (stepLevel === "4") {
       return <StepFive />;
    }
 
