@@ -2,6 +2,7 @@ const express = require("express");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const admissionRoutes = require("./routes/applicationRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 const cors = require("cors");
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.json());
 // Define routes
 app.use("/api/user", userRoutes);
 app.use("/api/admission", admissionRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.listen(PORT, () => {
    console.log(`Server is running on port ${PORT}`);

@@ -1,4 +1,5 @@
-import { departmentMapping, faculties } from "@/components/dashboard/admission/steps/StepTwo";
+
+import { departmentMapping, faculties } from "@/components/dashboard/constants";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -28,3 +29,5 @@ export const getDeparmentLabel = (facultyName: string, departmentName: string) =
    // Return the label of the first department that matches
    return department[0]?.label;
 };
+
+

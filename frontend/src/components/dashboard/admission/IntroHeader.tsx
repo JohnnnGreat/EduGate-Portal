@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,10 @@ import {
    TriangleAlert,
    XCircleIcon,
 } from "lucide-react";
-import { departmentMapping } from "./steps/StepTwo";
+import { departmentMapping } from "../constants";
+import axiosUserClient from "@/lib/api/axiosClient";
+import PaystackPop from "@paystack/inline-js";
+import useUserData from "@/hooks/useUserData";
 
 const IntroHeader = () => {
    const stepLevel = useSearchParams().get("idx");
@@ -54,7 +57,6 @@ const IntroHeader = () => {
 
    const router = useRouter();
    const handleNavChange = (item) => {
-      console.log(item);
       router.push(item?.href);
    };
 
@@ -65,6 +67,8 @@ const IntroHeader = () => {
    const updatedAt = response?.data?.updatedAt ?? "";
    const status = response?.data?.status ?? "";
 
+   const { data: userData } = useUserData();
+   console.log(userData);
    const getDeparmentLabel = (facultyName: string, departmentName: string) => {
       console.log(facultyName, departmentName);
       // Check if the facultyName exists in departmentMapping
@@ -82,7 +86,72 @@ const IntroHeader = () => {
       return department[0]?.label;
    };
 
-   console.log(faculty, department);
+   const [loading, setLoading] = useState(false);
+
+   const handlePayment = async () => {
+      try {
+         setLoading(true);
+
+         // Step 1: Create the payment on the server
+         const response = await axiosUserClient.post("http://localhost:5000/api/payments/create", {
+            paymentType: "Acceptance Fee", // Payment type (in this case, Acceptance Fee)
+            amount: 20000, // Example acceptance fee amount
+            // Current academic session
+         });
+
+         const { payment } = response.data;
+
+         // Step 2: Call Paystack to process the payment
+         handlePaystackPayment(payment.reference, payment.amount);
+      } catch (error) {
+         console.log(error);
+         console.error("Error initiating payment:", error);
+         alert("Payment initiation failed. Please try again.");
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const handlePaystackPayment = (reference, amount) => {
+      // Load Paystack inline script
+      const paystack = PaystackPop.setup({
+         key: "pk_test_642faff12375599e2a5b72bad1ee000f88ec51ae", // Paystack public key from environment variable
+         email: userData?.data?.email, // Use student's email from user data
+         amount: amount * 100, // Paystack expects amount in kobo, so multiply by 100
+         reference: reference, // Transaction reference from backend
+         onSuccess: (transaction) => {
+            console.log(transaction);
+            // Payment was successful, redirect user or show success message
+            alert("Payment successful! Transaction reference: " + transaction.reference);
+
+            // Optional: Call the backend to verify payment
+            verifyPayment(reference);
+         },
+         onCancel: () => {
+            // User cancelled the payment
+            alert("Payment was cancelled.");
+         },
+      });
+
+      paystack.openIframe();
+   };
+
+   // Function to verify the payment on the backend
+   const verifyPayment = async (reference) => {
+      try {
+         const response = await axiosUserClient.get(
+            `http://localhost:5000/api/payments/verify/${reference}`,
+         );
+         if (response.data.payment.status === "Success") {
+            alert("Payment verified successfully!");
+         } else {
+            alert("Payment verification failed.");
+         }
+      } catch (error) {
+         console.error("Error verifying payment:", error);
+      }
+   };
+
    return (
       <div>
          {" "}
@@ -280,7 +349,7 @@ const IntroHeader = () => {
                   <Button
                      className="bg-[#02333F] py-[1.6rem] px-[2rem] my-[1rem] font-bold"
                      type="submit"
-
+                     onClick={handlePayment}
                      // disabled={!isError || isSubmitting} // Disable the button if form is invalid or submitting
                   >
                      <CreditCard />

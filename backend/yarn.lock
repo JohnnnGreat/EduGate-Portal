@@ -9,6 +9,11 @@
   dependencies:
     sparse-bitfield "^3.0.3"
 
+"@paystack/inline-js@^2.22.1":
+  version "2.22.1"
+  resolved "https://registry.npmjs.org/@paystack/inline-js/-/inline-js-2.22.1.tgz"
+  integrity sha512-h9cf+3UbFY/+/GRA5XeWj769KaSHuedqIcuYDdV6voKGnwF9qcmJ3BorpIST45Y3qVXljOXsexL2tS6GZXJbmg==
+
 "@pdf-lib/standard-fonts@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@pdf-lib/standard-fonts/-/standard-fonts-1.0.0.tgz"
@@ -1331,6 +1336,11 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
+
+uuid@^11.0.3:
+  version "11.0.3"
+  resolved "https://registry.npmjs.org/uuid/-/uuid-11.0.3.tgz"
+  integrity sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==
 
 vary@^1, vary@~1.1.2:
   version "1.1.2"

@@ -1,0 +1,18 @@
+{
+   "editor.tabSize": 2,
+   "editor.wordWrap": "on",
+   "files.autoSave": "afterDelay",
+   "files.autoSaveDelay": 1000,
+   "eslint.enable": true,
+   "prettier.singleQuote": true,
+   "editor.formatOnSave": true,
+   "editor.defaultFormatter": "esbenp.prettier-vscode",
+   "git.enableSmartCommit": true,
+   "editor.insertSpaces": true,
+   "files.trimTrailingWhitespace": true,
+   "files.eol": "\n",
+   "editor.minimap.enabled": false,
+   "editor.lineHeight": 24,
+   "editor.fontFamily": "Fira Code, Consolas, 'Courier New', monospace",
+   "editor.fontSize": 14
+}
