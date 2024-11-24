@@ -68,7 +68,7 @@ const IntroHeader = () => {
    const status = response?.data?.status ?? "";
 
    const { data: userData } = useUserData();
-   console.log(userData);
+
    const getDeparmentLabel = (facultyName: string, departmentName: string) => {
       console.log(facultyName, departmentName);
       // Check if the facultyName exists in departmentMapping

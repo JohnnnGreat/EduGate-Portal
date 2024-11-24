@@ -10,6 +10,8 @@ const {
    getStudentPayments,
    getPaymentByReference,
    checkPayment,
+   getPaymentListByLevel,
+   checkMajorPayments,
 } = require("../controllers/Payments");
 const verifyToken = require("../middleware/authMiddleware");
 
@@ -25,5 +27,7 @@ router.get("/student/", verifyToken, getStudentPayments);
 
 // Route to get payment details using the payment reference
 router.get("/reference/:reference", getPaymentByReference);
+router.get("/get-level-based-payments", verifyToken, getPaymentListByLevel);
+router.get("/check-major-payments", verifyToken, checkMajorPayments);
 
 module.exports = router;

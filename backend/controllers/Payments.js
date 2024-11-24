@@ -5,36 +5,49 @@ const Payment = require("../models/Payment");
 const axios = require("axios"); // For making HTTP requests (e.g., to Paystack)
 const { v4: uuidv4 } = require("uuid");
 const User = require("../models/User");
+const { paymentList } = require("../constant");
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
    const { studentId, paymentType, amount, academicSession, semester } = req.body;
 
    const receiptNumber = uuidv4();
-   console.log(req.user);
-   const existingAdmission = await Admission.find({ admissionNumber: req.user.admissionNumber });
-
-   // Generate a unique transaction reference
-   const reference = `UNIPORTAL_${new Date().getTime()}_${req.user.userId}`;
-
-   const userInformation = await User.findById(req.user.userId);
-   console.log(existingAdmission);
-
    try {
-      const payment = new Payment({
-         studentId: req.user.userId,
-         paymentType,
-         amount,
-         reference,
-         academicSessio: existingAdmission?.academicSession,
-         semester: "First Semester",
-         receiptNumber,
+      const existingAdmission = await Admission.find({
+         admissionNumber: req.user.admissionNumber,
       });
 
-      await payment.save();
+      // Generate a unique transaction reference
+      const reference = `UNIPORTAL_${new Date().getTime()}_${req.user.userId}`;
 
-      res.status(201).json({ message: "Payment initiated successfully", payment });
+      const existingPayment = await Payment.findOne({
+         paymentType,
+         status: "Success",
+      });
+
+      const userInformation = await User.findById(req.user.userId);
+      if (existingPayment) {
+         return res.status(401).json({
+            message: "Payment of this type has already been made",
+            payment: existingPayment,
+         });
+      } else {
+         const payment = new Payment({
+            studentId: req.user.userId,
+            paymentType,
+            amount,
+            reference,
+            academicSessio: existingAdmission?.academicSession,
+            semester: "First Semester",
+            receiptNumber,
+         });
+
+         await payment.save();
+
+         res.status(201).json({ message: "Payment initiated successfully", payment });
+      }
    } catch (error) {
+      console.log(error);
       res.status(500).json({ message: "Payment creation failed", error: error.message });
    }
 };
@@ -70,9 +83,33 @@ exports.verifyPayment = async (req, res) => {
    }
 };
 
+exports.getPaymentListByLevel = async (req, res) => {
+   const studentId = req.user.userId;
+
+   try {
+      const userAdmission = await Admission.findOne({ user: studentId });
+      if (!userAdmission) {
+         return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get the Curent Level of the User
+      const userLevel = `${userAdmission?.program?.level} Level`;
+
+      // get All Payments to be done by user based on the Level
+      const allPaymentsNeccessary = paymentList[userLevel];
+
+      res.status(200).send({
+         message: "Payment List retrieved successfully",
+         paymentList: allPaymentsNeccessary,
+         userLevel,
+         userAdmission,
+      });
+   } catch (error) {
+      res.status(500).json({ message: "Error Fetching Payment List", error: error.message });
+   }
+};
 // Get all payments for a specific student
 exports.getStudentPayments = async (req, res) => {
-   console.log(req.user);
    const studentId = req.user.userId;
 
    try {
@@ -129,6 +166,68 @@ exports.getPaymentByReference = async (req, res) => {
    }
 };
 
+exports.checkMajorPayments = async (req, res) => {
+   const studentId = req.user.userId;
+
+   try {
+      const userAdmission = await Admission.findOne({ user: studentId });
+      if (!userAdmission) {
+         return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get the Curent Level of the User
+      const userLevel = `${userAdmission?.program?.level} Level`;
+
+      // get All Payments to be done by user based on the Level
+      const allPaymentsNeccessary = paymentList[userLevel];
+
+      const majorPayments = allPaymentsNeccessary.filter((paymentType) => {
+         return paymentType.required === true;
+      });
+
+      const majorPaymentTypes = [];
+
+      majorPayments.map((item) => {
+         majorPaymentTypes.push(item.type);
+      });
+
+      console.log(majorPaymentTypes);
+      // Define major payment types
+      // const majorPaymentTypes = [
+      //    "Tuition Fees",
+
+      //    "Exam Fees",
+      //    "Course Registration",
+      //    "Department Fee",
+      //    "Faculty Fee",
+      //    "ICT Fee",
+      // ];
+
+      // Check if payments of major types have been made
+      const payments = await Payment.find({
+         studentId,
+         paymentType: { $in: majorPaymentTypes },
+         status: "Success",
+      });
+
+      if (payments.length === majorPaymentTypes.length) {
+         // All major payments have been made
+         return res.status(200).json({
+            message: "All major payments have been made",
+            payments,
+            success: true,
+         });
+      }
+
+      // Not all major payments have been made
+      return res.status(404).json({
+         message: "Not all major payments have been made",
+         payments: payments,
+      });
+   } catch (error) {
+      res.status(500).json({ message: "Error checking major payments", error: error.message });
+   }
+};
 // Helper function to generate a unique receipt number
 function generateReceiptNumber() {
    // Implement a unique receipt number generator

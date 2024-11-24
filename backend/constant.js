@@ -223,7 +223,33 @@ const departmentMapping = {
    ],
 };
 
+// "Tuition Fee",
+//          "Acceptance Fee",
+//          "Hostel Fee",
+//          "Course Registration Fee",
+//          "Library Fine",
+//          "Convocation Fee",
+//          "Other",
+const paymentList = {
+   "100 Level": [
+      { type: "Tuition Fee", required: true },
+      { type: "Department Fee", required: true },
+      { type: "Faculty Fee", required: true },
+      { type: "Course Registration Fee", required: true },
+      { type: "Library Fine", required: false },
+      { type: "ICT Fee", required: true },
+      { type: "Hostel", required: false },
+      { type: "Matriculation", required: true },
+   ],
+   "200 Level": [],
+   "300 Level": [],
+   "400 Level": [],
+   "500 Level": [],
+   Spills: [],
+   "Third Semester": [],
+};
 module.exports = {
    faculties,
    departmentMapping,
+   paymentList,
 };
