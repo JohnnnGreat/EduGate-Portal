@@ -11,7 +11,6 @@ const AdmissionSchema = new Schema({
       type: String,
       required: true,
    },
-
    academicSession: {
       type: String,
    },
@@ -32,7 +31,6 @@ const AdmissionSchema = new Schema({
       },
       courseDuration: {
          type: Number,
-
          // Number of years for the program (e.g., 4, 5, 6 years)
       },
    },
@@ -46,7 +44,6 @@ const AdmissionSchema = new Schema({
    },
    jambRegistrationNumber: {
       type: String,
-
       unique: true,
    },
    admissionType: {
@@ -62,7 +59,6 @@ const AdmissionSchema = new Schema({
          {
             examType: {
                type: String,
-
                // Example: "WAEC", "NECO", "GCE"
             },
             examYear: {
@@ -75,7 +71,6 @@ const AdmissionSchema = new Schema({
                   },
                   grade: {
                      type: String,
-
                      // Example: "A1", "B2", "C4", etc.
                   },
                },
@@ -117,6 +112,28 @@ const AdmissionSchema = new Schema({
          },
       ],
    },
+   // Next of Kin Information
+   nextOfKin: {
+      name: {
+         type: String,
+         required: true,
+      },
+      relationship: {
+         type: String,
+         required: true,
+         // Example: "Father", "Mother", "Guardian", etc.
+      },
+      phone: {
+         type: String,
+         required: true,
+      },
+      email: {
+         type: String,
+      },
+      address: {
+         type: String,
+      },
+   },
    createdAt: {
       type: Date,
       default: Date.now,
@@ -130,6 +147,9 @@ const AdmissionSchema = new Schema({
       default: false,
    },
    fileUrl: {
+      type: String,
+   },
+   regNumber: {
       type: String,
    },
 });

@@ -137,6 +137,7 @@ exports.checkPayment = async (req, res) => {
          return res.status(200).json({
             message: "Payment of this type has already been made",
             payment: existingPayment,
+            success: true,
          });
       }
 
@@ -191,7 +192,7 @@ exports.checkMajorPayments = async (req, res) => {
          majorPaymentTypes.push(item.type);
       });
 
-      console.log(majorPaymentTypes);
+ 
       // Define major payment types
       // const majorPaymentTypes = [
       //    "Tuition Fees",
@@ -226,6 +227,32 @@ exports.checkMajorPayments = async (req, res) => {
       });
    } catch (error) {
       res.status(500).json({ message: "Error checking major payments", error: error.message });
+   }
+};
+
+exports.checkAcceptanceFee = async (req, res) => {
+   const studentId = req.user.userId;
+
+   try {
+      const existingPayment = await Payment.findOne({
+         studentId,
+         paymentType: "Acceptance Fee",
+         status: "Success",
+      });
+
+      if (existingPayment) {
+         return res.status(200).json({
+            message: "Acceptance Fee has already been paid",
+            payment: existingPayment,
+            success: true,
+         });
+      }
+
+      return res.status(404).json({
+         message: "Acceptance Fee has not been paid yet",
+      });
+   } catch (error) {
+      res.status(500).json({ message: "Error checking Acceptance Fee", error: error.message });
    }
 };
 // Helper function to generate a unique receipt number

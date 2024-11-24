@@ -9,9 +9,9 @@ const SideNav = () => {
 
    return (
       <div>
-         <div>
-            <h1>
-               Edu<span>Gate</span>
+         <div className="h-[100px] flex items-center p-[1rem]">
+            <h1 className="font-light text-[#fff]/90 text-[1.6rem] ">
+               Edu<span className="font-bold">Gate</span>
             </h1>
          </div>
          <ul className="flex flex-col gap-y-[1rem]">

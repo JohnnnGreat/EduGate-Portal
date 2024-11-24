@@ -30,4 +30,5 @@ router.get("/reference/:reference", getPaymentByReference);
 router.get("/get-level-based-payments", verifyToken, getPaymentListByLevel);
 router.get("/check-major-payments", verifyToken, checkMajorPayments);
 
+
 module.exports = router;

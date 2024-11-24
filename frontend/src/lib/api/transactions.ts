@@ -161,3 +161,17 @@ export const checkPaymentsDone = async (): Promise<any> => {
       throw new Error("An unexpected error occurred");
    }
 };
+
+export const checkPayment = async (type: string): Promise<any> => {
+   try {
+      const response = await axiosUserClient.post("/payments/check-payment", {
+         type,
+      });
+      return response?.data;
+   } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+         throw new Error(error.response.data.message || "An error occurred");
+      }
+      throw new Error("An unexpected error occurred");
+   }
+};

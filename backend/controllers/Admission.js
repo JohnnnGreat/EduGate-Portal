@@ -118,6 +118,11 @@ const updateAdmission = async (req, res) => {
             "documents.birthCertificate": birthCertificate ?? "",
             "documents.oLevelResult": oLevelResult ?? "",
             submitted,
+            "nextOfKin.name": req.body.name,
+            "nextOfKin.email": req.body.email,
+            "nextOfKin.address": req.body.address,
+            "nextOfKin.phone": req.body.phone,
+            "nextOfKin.relationship": req.body.relationship,
          },
          { new: true, runValidators: true },
       );
@@ -150,11 +155,15 @@ const updateAdmission = async (req, res) => {
             contentType: "application/pdf",
          });
 
-         const response = await axios.post("http://localhost:9000/upload", formData, {
-            headers: {
-               ...formData.getHeaders(),
+         const response = await axios.post(
+            "https://appwrite-express-file-upload.onrender.com/upload",
+            formData,
+            {
+               headers: {
+                  ...formData.getHeaders(),
+               },
             },
-         });
+         );
 
          const { fileUrl } = response.data;
 
@@ -172,6 +181,7 @@ const updateAdmission = async (req, res) => {
          admission: updatedAdmission,
       });
    } catch (error) {
+      console.log(error);
       return res.status(500).json({
          message: "An Error Occured While Registering",
          type: "INTERNAL_SERVER_ERROR",

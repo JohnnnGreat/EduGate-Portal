@@ -61,6 +61,11 @@ const UserSchema = new Schema(
       lastLogin: {
          type: Date,
       },
+      role: {
+         type: String,
+         enum: ["Lecturer", "ICT", "Management", "Student"],
+         default: "Student",
+      },
       lastPasswordChange: {
          type: Date,
       },

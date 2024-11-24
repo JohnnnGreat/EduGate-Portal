@@ -61,7 +61,7 @@ const checkIfAdmitted = async (req, res) => {
 };
 
 const registerNewStudent = async (req, res) => {
-   console.log(req.body);
+   
    try {
       const userInformationPayload = req.body;
 

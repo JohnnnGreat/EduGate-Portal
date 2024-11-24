@@ -19,6 +19,7 @@ export const updateAdmission = async (data: any) => {
       response?.data;
       return response.data;
    } catch (error) {
+      console.log(error);
       if (error instanceof AxiosError && error.response) {
          throw new Error(error.response.data.message || "An error occurred");
       }

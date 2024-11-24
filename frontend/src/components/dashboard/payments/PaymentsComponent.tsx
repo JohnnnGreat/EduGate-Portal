@@ -12,6 +12,7 @@ import { getPaymentList, handlePayment, checkPaymentsDone } from "@/lib/api/tran
 import useUserData from "@/hooks/useUserData";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import NextOfKin from "../shared/NextOfKin";
 
 const paymentTypeEnum = z.enum([
    "Tuition Fee",
@@ -74,59 +75,84 @@ const PaymentsComponent = () => {
 
    const [paymentsAllDone, setPaymentsAllDone] = useState<Boolean>(false);
    useEffect(() => {
-      checkPaymentsDone().then((response) => console.log(response));
+      checkPaymentsDone().then((response) => setPaymentsAllDone(response.success));
    }, [paymentLists]);
+
+   const [openDialog, setOpenDialog] = useState(false);
    return (
-      <div>
-         <div className="p-[2rem] bg-white rounded-[20px]">
-            <h1 className="text-[2rem] font-bold">My Payments</h1>
-         </div>
-
-         <div className="grid grid-cols-2 gap-[1rem] h-[300px]">
-            <div className="p-[2rem] bg-white rounded-[20px] my-[1rem]">
-               <h1 className="my-[1rem] font-light text-[1.2rem]">Make Transaction</h1>
-
-               <Form {...form}>
-                  <form
-                     onSubmit={form.handleSubmit(onSubmit)}
-                     className="space-y-4"
-                  >
-                     <SelectField
-                        name="paymentType"
-                        label="Choose Payment"
-                        form={form}
-                        items={paymentOptions}
-                        placeholder="Select Faculty"
-                        className="border bg-gray-300"
-                     />
-
-                     <Button>Cotinue</Button>
-                  </form>
-               </Form>
+      <>
+         {openDialog && <NextOfKin handler={setOpenDialog} />}
+         <div>
+            <div className="p-[2rem] bg-white rounded-[20px]">
+               <h1 className="text-[2rem] font-bold">My Payments</h1>
             </div>
-            <div className="p-[2rem] bg-white rounded-[20px] my-[1rem] overflow-y-scroll">
-               <h1 className="my-[1rem] font-light text-[1.2rem]">Required Payments</h1>
 
-               <div>
-                  {" "}
-                  {paymentLists?.map((payment) => (
-                     <div className="border-b p-[1rem] flex justify-between">
-                        <h1 className="text-[.9rem]">{payment?.type}</h1>
-                        <p className="text-[#00000079] text-[.7rem]">
-                           {payment?.required ? "Required" : "Not Required"}
-                        </p>
-                     </div>
-                  ))}
+            <div className="grid grid-cols-2 gap-[1rem] h-[300px]">
+               {paymentsAllDone ? (
+                  <div className="p-[2rem] bg-white rounded-[20px] my-[1rem]">
+                     <h1 className="my-[1rem] font-light text-[1.2rem]">All Payments Completed!</h1>
+                     <p className="text-[#555] text-[.9rem] mb-[1.5rem] mt-[1rem]">
+                        Congratulations! You’ve completed all the necessary payments. However, there
+                        are still some steps left to finish your registration. Please proceed to
+                        provide additional information as required.
+                     </p>
+                     <Button
+                        onClick={() => {
+                           setOpenDialog(true);
+                        }}
+                        className=" text-white px-[2rem] bg-[#02333F] py-[1rem] rounded-md  transition-all duration-200"
+                     >
+                        Continue Registration
+                     </Button>
+                  </div>
+               ) : (
+                  <div className="p-[2rem] bg-white rounded-[20px] my-[1rem]">
+                     <h1 className="my-[1rem] font-light text-[1.2rem]">Make Transaction</h1>
+
+                     <Form {...form}>
+                        <form
+                           onSubmit={form.handleSubmit(onSubmit)}
+                           className="space-y-4"
+                        >
+                           <SelectField
+                              name="paymentType"
+                              label="Choose Payment"
+                              form={form}
+                              items={paymentOptions}
+                              placeholder="Select Faculty"
+                              className="border bg-gray-300"
+                           />
+
+                           <Button>Cotinue</Button>
+                        </form>
+                     </Form>
+                  </div>
+               )}
+
+               <div className="p-[2rem] bg-white rounded-[20px] my-[1rem] overflow-y-scroll">
+                  <h1 className="my-[1rem] font-light text-[1.2rem]">Required Payments</h1>
+
+                  <div>
+                     {" "}
+                     {paymentLists?.map((payment) => (
+                        <div className="border-b p-[1rem] flex justify-between">
+                           <h1 className="text-[.9rem]">{payment?.type}</h1>
+                           <p className="text-[#00000079] text-[.7rem]">
+                              {payment?.required ? "Required" : "Not Required"}
+                           </p>
+                        </div>
+                     ))}
+                  </div>
                </div>
             </div>
-         </div>
 
-         {/* ALl Transactions Made  */}
-         <div className="p-[2rem] bg-white rounded-[20px] mb-[1rem]">
-            <h1 className="my-[1rem] font-light text-[1.2rem]">All Transactions</h1>
-            <Transactions trxs={transactions} />
+            {/* ALl Transactions Made  */}
+            <div className="p-[2rem] bg-white rounded-[20px] mb-[1rem]">
+               <h1 className="my-[1rem] font-light text-[1.2rem]">All Transactions</h1>
+               <Transactions trxs={transactions} />
+            </div>
          </div>
-      </div>
+      </>
    );
 };
 
