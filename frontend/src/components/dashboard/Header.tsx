@@ -3,11 +3,13 @@ import React from "react";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 import useUserData from "@/hooks/useUserData";
+import useGetAdmission from "@/hooks/useGetAdmission";
 
 const Header = () => {
    const { data: response, isLoading, error } = useUserData();
+   const { data: adResponse } = useGetAdmission();
    const profileInformation = response?.data;
-
+   const admissionInformation = adResponse?.data;
    return (
       <div className="w-full flex justify-between  p-[1rem] rounded-[20px] ">
          <form
@@ -20,13 +22,20 @@ const Header = () => {
                className="shadow-none border-none placeholder:text-[#00000086]"
             ></Input>
          </form>
-         <div className="flex gap">
+         <div className="flex gap gap-3 items-center">
             <img
-               src={profileInformation?.image}
+               src={profileInformation?.profilePicture}
                alt="Profile Image"
+               className="w-[50px] rounded-full"
             />
             <div>
-               <h1>{profileInformation?.firstName}</h1>
+               <h1 className="font-bold">{profileInformation?.firstName}</h1>
+               {admissionInformation?.matNumber ? (
+                  <p className="text-[#000]/70 text-[.7rem]">{admissionInformation?.matNumber}</p>
+               ) : (
+                  <p className="text-red-500 ">Not Available</p>
+               )}
+
                {/* <p>Last Login {new Date(profileinformation.lastLogin)}</p> */}
             </div>
          </div>

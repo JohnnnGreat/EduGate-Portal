@@ -7,6 +7,10 @@ import {
    Settings,
    LifeBuoy,
    Megaphone,
+   BookOpen,
+   CheckCircle,
+   Users,
+   Info,
 } from "lucide-react";
 
 export const dashboardSideNav = [
@@ -51,6 +55,11 @@ export const dashboardSideNav = [
       href: "/results",
    },
    {
+      title: "Course Registration",
+      icon: <FileText />,
+      href: "/accounts/user/dashboard/course-registration",
+   },
+   {
       title: "Library",
       icon: <Book />,
       href: "/library",
@@ -63,7 +72,7 @@ export const dashboardSideNav = [
    {
       title: "Profile",
       icon: <User />,
-      href: "/profile?email",
+      href: "/accounts/user/dashboard/profile",
    },
    {
       title: "Settings",
@@ -82,6 +91,38 @@ export const dashboardSideNav = [
    },
 ];
 
+export const sideNavIct = [
+   {
+      title: "Home",
+      icon: <Home />, // Home icon for the main dashboard.
+      href: "/accounts/user/dashboard",
+   },
+   {
+      title: "Upload Courses",
+      icon: <BookOpen />, // BookOpen icon represents course-related actions.
+      href: "/accounts/user/dashboard/process-admission",
+   },
+   {
+      title: "Upload Results",
+      icon: <CheckCircle />, // CheckCircle icon suggests task completion or results.
+      href: "/accounts/user/dashboard/payments",
+   },
+   {
+      title: "Staff",
+      icon: <Users />, // Users icon for personnel or staff management.
+      href: "/results",
+   },
+   {
+      title: "Discipline",
+      icon: <FileText />, // FileText icon for documents, reports, or discipline details.
+      href: "/accounts/user/dashboard/course-registration",
+   },
+   {
+      title: "Announcements",
+      icon: <Info />, // Info icon for news, updates, or announcements.
+      href: "/accounts/user/dashboard/announcements",
+   },
+];
 export const faculties = [
    { label: "Faculty of Arts", value: "faculty-of-arts" },
    { label: "Faculty of Sciences", value: "faculty-of-sciences" },

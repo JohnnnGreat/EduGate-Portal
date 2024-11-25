@@ -122,7 +122,7 @@ exports.getStudentPayments = async (req, res) => {
 
 exports.checkPayment = async (req, res) => {
    const { type } = req.body;
-   const studentId = req.user.userId; // Assuming `req.user.userId` holds the authenticated student's ID
+   const studentId = req.user.userId; 
 
    try {
       // Check if a payment with the same type and studentId already exists
@@ -191,18 +191,6 @@ exports.checkMajorPayments = async (req, res) => {
       majorPayments.map((item) => {
          majorPaymentTypes.push(item.type);
       });
-
- 
-      // Define major payment types
-      // const majorPaymentTypes = [
-      //    "Tuition Fees",
-
-      //    "Exam Fees",
-      //    "Course Registration",
-      //    "Department Fee",
-      //    "Faculty Fee",
-      //    "ICT Fee",
-      // ];
 
       // Check if payments of major types have been made
       const payments = await Payment.find({

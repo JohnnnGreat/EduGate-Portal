@@ -11,6 +11,10 @@ const AdmissionSchema = new Schema({
       type: String,
       required: true,
    },
+
+   matNumber: {
+      type: String,
+   },
    academicSession: {
       type: String,
    },
@@ -33,6 +37,10 @@ const AdmissionSchema = new Schema({
          type: Number,
          // Number of years for the program (e.g., 4, 5, 6 years)
       },
+   },
+   semesterInformationUpdated: {
+      type: Boolean,
+      default: false,
    },
    status: {
       type: String,
@@ -132,6 +140,19 @@ const AdmissionSchema = new Schema({
       },
       address: {
          type: String,
+      },
+   },
+
+   currentAcademicInformation: {
+      semester: {
+         type: String,
+         enum: ["First Semester", "Second Semester"],
+      },
+      startDate: {
+         type: Date,
+      },
+      endDate: {
+         type: Date,
       },
    },
    createdAt: {
