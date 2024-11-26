@@ -3,6 +3,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const admissionRoutes = require("./routes/applicationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const hostelRoutes = require("./routes/hostelRoutes");
 const cors = require("cors");
 
 const app = express();
@@ -28,6 +29,7 @@ app.use(express.json());
 app.use("/api/user", userRoutes);
 app.use("/api/admission", admissionRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/hostel", hostelRoutes);
 
 app.listen(PORT, () => {
    console.log(`Server is running on port ${PORT}`);

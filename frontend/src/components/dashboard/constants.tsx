@@ -66,8 +66,8 @@ export const dashboardSideNav = [
    },
    {
       title: "Hostel",
-      icon: <Home />, // or use a different icon such as 'Bed'
-      href: "/hostel",
+      icon: <Home />,
+      href: "/accounts/user/dashboard/hostel",
    },
    {
       title: "Profile",

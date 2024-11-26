@@ -100,6 +100,7 @@ body {
    background-color: #fcfcfc;
 }
 
+
 /* Style for WebKit-based browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
    width: 5px; /* Width of the scrollbar */
