@@ -22,7 +22,7 @@ const RoomSchema = new mongoose.Schema({
       {
          studentId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Student",
+            ref: "User",
          },
          dateAllocated: {
             type: Date,
@@ -94,7 +94,7 @@ const HostelSchema = new mongoose.Schema({
 const BookingSchema = new mongoose.Schema({
    studentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      ref: "User",
       required: true,
    },
    hostelId: {

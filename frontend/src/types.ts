@@ -59,3 +59,39 @@ export interface File {
    type: "birthCertificate" | "oLevelResults";
 }
 export interface Register extends Login {}
+
+interface Room {
+   roomNumber: string;
+   isOccupied: boolean;
+   bedsAvailable: number;
+   bedCapacity: number;
+   occupants: Occupant[]; // Assuming occupants are objects, you can define an interface for this if needed.
+}
+
+interface Occupant {
+   studentId?: string; // Optional if no occupants exist
+   dateAllocated?: string; // Optional if no occupants exist
+}
+
+interface ContactInfo {
+   email: string;
+   phone: string;
+}
+
+interface Availability {
+   bedsAvailable: number;
+   status: "Available" | "Unavailable"; // Can use a union type for fixed values
+}
+
+export interface Hostel {
+   name: string;
+   pricePerSemester: number;
+   genderRestriction: "Male Only" | "Female Only" | "Mixed Gender"; // Restrict to valid options
+   rooms: Room[];
+   totalRooms: number;
+   description: string;
+   facilities: string[]; // Array of facility descriptions
+   address: string;
+   contactInfo: ContactInfo;
+   availability: Availability;
+}

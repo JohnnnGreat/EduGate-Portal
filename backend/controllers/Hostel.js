@@ -97,3 +97,20 @@ exports.getHostelsByGender = async (req, res) => {
       });
    }
 };
+
+exports.getHostelById = async (req, res) => {
+   const { hostelId } = req.params;
+
+   try {
+      const hostel = await Hostel.findById(hostelId);
+      return res.status(200).json({
+         success: true,
+         hostel,
+      });
+   } catch (error) {
+      res.status(500).json({
+         success: false,
+         message: "Server error, please try again",
+      });
+   }
+};
