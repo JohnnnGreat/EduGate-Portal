@@ -84,6 +84,7 @@ interface Availability {
 }
 
 export interface Hostel {
+   _id: string;
    name: string;
    pricePerSemester: number;
    genderRestriction: "Male Only" | "Female Only" | "Mixed Gender"; // Restrict to valid options
@@ -94,4 +95,12 @@ export interface Hostel {
    address: string;
    contactInfo: ContactInfo;
    availability: Availability;
+}
+
+export interface Booking {
+   _id: string;
+   hostelId: Hostel;
+   roomNumber: string;
+   studentId: User;
+   dateBooking: Date;
 }

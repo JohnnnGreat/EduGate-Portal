@@ -104,11 +104,11 @@ const BookingSchema = new mongoose.Schema({
    },
    roomNumber: {
       type: String,
-      required: true,
+      
    },
    bedNumber: {
       type: Number,
-      required: true,
+      
    },
    dateOfBooking: {
       type: Date,
