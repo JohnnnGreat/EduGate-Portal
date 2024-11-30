@@ -24,7 +24,7 @@
 }
 
 body {
-   font-family: AeonikTRIAL, Helvetica, sans-serif;
+   font-family: AeonikTRIAL, Helvetica, sans-serif !important;
 }
 
 .Toastify__toast-body {
@@ -141,4 +141,46 @@ body {
 .custom-scroll {
    scrollbar-color: #000000 #f1f1f1;
    scrollbar-width: thin;
+}
+
+/* Add padding and hover effects for better readability */
+.custom-table .ant-table-thead > tr > th {
+   font-weight: bold;
+   text-align: center;
+
+   font-family: AeonikTRIAL, Helvetica, sans-serif !important;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+   border-bottom: 1px solid #d9d9d9;
+   padding: 12px;
+   color: rgba(0, 0, 0, 0.5);
+   font-family: AeonikTRIAL, Helvetica, sans-serif !important;
+}
+
+/* Add hover effect on rows */
+.custom-table .ant-table-tbody > tr:hover > td {
+   background-color: #e6f7ff;
+   cursor: pointer;
+}
+
+/* Style success or failure rows */
+.custom-table .ant-table-tbody > tr > td span {
+   font-size: 14px;
+}
+
+/* Add striping effect for alternating rows */
+.custom-table .ant-table-tbody > tr:nth-child(odd) > td {
+   background-color: #ffffff;
+}
+
+.custom-table .ant-table-tbody > tr:nth-child(even) > td {
+   background-color: #ffffff;
+}
+
+/* Add padding to table for spacing */
+.custom-table {
+   margin: 20px auto;
+   max-width: 100%;
+   border-radius: 8px;
 }
