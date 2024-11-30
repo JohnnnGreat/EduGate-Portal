@@ -175,3 +175,15 @@ export const checkPayment = async (type: string): Promise<any> => {
       throw new Error("An unexpected error occurred");
    }
 };
+
+export const getAllPaymentTransactions = async (): Promise<any> => {
+   try {
+      const response = await axiosUserClient.get("/payments/get-payments");
+      return response?.data;
+   } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+         throw new Error(error.response.data.message || "An error occurred");
+      }
+      throw new Error("An unexpected error occurred");
+   }
+};

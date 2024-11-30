@@ -1,42 +1,70 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sideNavIct } from "../constants";
+import { adminDashboard } from "./adminConstants";
 
-const SideNav = () => {
-   const router = usePathname(); // Get the current route from the router
+const SideNavAdmin = () => {
+   const [activeIndex, setActiveIndex] = useState(null);
+
+   const toggleSection = (index: any) => {
+      setActiveIndex(activeIndex === index ? null : index);
+   };
 
    return (
-      <div>
-         <div className="h-[100px] flex items-center p-[1rem]">
-            <h1 className="font-light text-[#fff]/90 text-[1.6rem] ">
-               Edu<span className="font-bold">Gate</span>
-            </h1>
-         </div>
-         <ul className="flex flex-col gap-y-[1rem]">
-            {sideNavIct.map((nav, idx) => {
-               // Check if the current route matches the nav item's href
-               const isActive = router === nav.href;
-
-               return (
-                  <Link
-                     key={idx}
-                     href={nav.href}
-                     className={`flex items-centers gap-[.8rem] py-[.8rem] px-[1rem] rounded-[10px] ${
-                        isActive
-                           ? "bg-[#CBE5EB]" // Active background color
-                           : "bg-transparent text-[#FFFFFF]/50 font-normal hover:text-[#FFFFFF]/90 transition-all" // Transparent background for non-active links
+      <div className="w-full border-r">
+         <div>
+            {adminDashboard.map((item, idx) => (
+               <div
+                  key={idx}
+                  className="border-b pr-1"
+               >
+                  <button
+                     className="w-full flex justify-between items-center py-[1rem] text-left hover:bg-[#02333F]"
+                     onClick={() => toggleSection(idx)}
+                  >
+                     <div className="flex gap-[1rem] items-center text-[#000]/50 text-[14px]">
+                        {item.icon}
+                        {item.title}
+                     </div>
+                     <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                     >
+                        <path
+                           d="M10 17L15 12L10 7"
+                           stroke="#B0B0B0"
+                           stroke-linecap="round"
+                           stroke-linejoin="round"
+                        />
+                     </svg>
+                  </button>
+                  <div
+                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                        activeIndex === idx ? "max-h-screen" : "max-h-0"
                      }`}
                   >
-                     {nav.icon}
-                     {nav.title}
-                  </Link>
-               );
-            })}
-         </ul>
+                     <ul className="px-[2rem] pb-2 text-gray-700 flex transition-all flex-col gap-[1rem]">
+                        {item.sub?.map((item, idx) => (
+                           <Link
+                              key={idx}
+                              href={item?.href}
+                              className="hover:text-[#02333F] text-[14px] text-[#000]/50 hover:font-bold hover:transition-all inline-block duration-300"
+                           >
+                              {item?.title}
+                           </Link>
+                        ))}
+                     </ul>
+                  </div>
+               </div>
+            ))}
+         </div>
       </div>
    );
 };
 
-export default SideNav;
+export default SideNavAdmin;

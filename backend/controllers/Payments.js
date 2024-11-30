@@ -122,7 +122,7 @@ exports.getStudentPayments = async (req, res) => {
 
 exports.checkPayment = async (req, res) => {
    const { type } = req.body;
-   const studentId = req.user.userId; 
+   const studentId = req.user.userId;
 
    try {
       // Check if a payment with the same type and studentId already exists
@@ -243,6 +243,61 @@ exports.checkAcceptanceFee = async (req, res) => {
       res.status(500).json({ message: "Error checking Acceptance Fee", error: error.message });
    }
 };
+
+exports.getAllPayments = async (req, res) => {
+   try {
+      const payments = await Payment.find().sort({ transactionDate: -1 }).populate("studentId");
+      res.status(200).json({ message: "Payments retrieved successfully", payments });
+   } catch (error) {
+      res.status(500).json({ message: "Error retrieving payments", error: error.message });
+   }
+};
+
+exports.exportTransactions = async (req, res) => {
+   const { format } = req.query;
+
+   try {
+      const payments = await Payment.find().sort({ transactionDate: -1 }).populate("studentId");
+
+      if (format === "csv") {
+         const csv = payments
+            .map((payment) => {
+               return [
+                  payment.studentId.name,
+                  payment.studentId.email,
+                  payment.paymentType,
+                  payment.amount,
+                  payment.transactionDate,
+                  payment.status,
+               ].join(",");
+            })
+            .join("\n");
+
+         res.header("Content-Type", "text/csv");
+         res.attachment("transactions.csv");
+         return res.send(csv);
+      } else if (format === "xlsx") {
+         const xlsx = require("xlsx");
+         const wb = xlsx.utils.book_new();
+         const ws = xlsx.utils.json_to_sheet(payments);
+
+         xlsx.utils.book_append_sheet(wb, ws, "Transactions");
+         const buf = xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
+
+         res.header(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+         );
+         res.attachment("transactions.xlsx");
+         return res.send(buf);
+      } else {
+         return res.status(400).json({ message: "Invalid format. Please use csv or xlsx." });
+      }
+   } catch (error) {
+      res.status(500).json({ message: "Error exporting transactions", error: error.message });
+   }
+};
+
 // Helper function to generate a unique receipt number
 function generateReceiptNumber() {
    // Implement a unique receipt number generator

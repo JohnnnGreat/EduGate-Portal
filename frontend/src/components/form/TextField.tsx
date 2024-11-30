@@ -29,7 +29,7 @@ const TextField: React.FC<TextFieldProps> = ({
          name={name}
          render={({ field }) => (
             <FormItem>
-               <FormLabel className="font-bold mt-3">{label}</FormLabel>
+               <FormLabel className=" mt-3">{label}</FormLabel>
                <FormControl>
                   <Input
                      placeholder={placeholder}

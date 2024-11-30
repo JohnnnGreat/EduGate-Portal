@@ -65,12 +65,12 @@ interface Room {
    isOccupied: boolean;
    bedsAvailable: number;
    bedCapacity: number;
-   occupants: Occupant[]; // Assuming occupants are objects, you can define an interface for this if needed.
+   occupants: Occupant[]; 
 }
 
 interface Occupant {
-   studentId?: string; // Optional if no occupants exist
-   dateAllocated?: string; // Optional if no occupants exist
+   studentId?: string; 
+   dateAllocated?: string;
 }
 
 interface ContactInfo {
@@ -80,18 +80,18 @@ interface ContactInfo {
 
 interface Availability {
    bedsAvailable: number;
-   status: "Available" | "Unavailable"; // Can use a union type for fixed values
+   status: "Available" | "Unavailable"; 
 }
 
 export interface Hostel {
    _id: string;
    name: string;
    pricePerSemester: number;
-   genderRestriction: "Male Only" | "Female Only" | "Mixed Gender"; // Restrict to valid options
+   genderRestriction: "Male Only" | "Female Only" | "Mixed Gender"; 
    rooms: Room[];
    totalRooms: number;
    description: string;
-   facilities: string[]; // Array of facility descriptions
+   facilities: string[]; 
    address: string;
    contactInfo: ContactInfo;
    availability: Availability;

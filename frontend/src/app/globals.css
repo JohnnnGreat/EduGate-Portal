@@ -100,33 +100,36 @@ body {
    background-color: #fcfcfc;
 }
 
-
 /* Style for WebKit-based browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
    width: 5px; /* Width of the scrollbar */
-   height: 5px; /* Height of the scrollbar for horizontal scroll */
+   height: 5px !important; /* Height of the scrollbar for horizontal scroll */
+   display: none !important;
 }
 
 ::-webkit-scrollbar-thumb {
    background-color: #02333f; /* Color of the scrollbar handle */
-   border-radius: 10px; /* Rounded corners */
+   border-radius: 30px !important; /* Rounded corners */
    border: 1px solid transparent; /* Space between the handle and the scrollbar track */
    background-clip: content-box; /* Ensures the border is only outside the handle */
+   display: none !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-   background-color: #02333f; /* Darker color on hover */
+   background-color: #e2e2e2; /* Darker color on hover */
+   display: none !important;
 }
 
 ::-webkit-scrollbar-track {
-   background-color: #f1f1f1; /* Color of the scrollbar track */
-   border-radius: 10px; /* Rounded corners */
+   background-color: #f1f1f1 !important; /* Color of the scrollbar track */
+   border-radius: 10px !important; /* Rounded corners */
+   display: none !important;
 }
 
 /* Firefox scrollbar customization (using new pseudo-elements) */
 * {
-   scrollbar-width: thin; /* Makes the scrollbar thin */
-   scrollbar-color: #02333f #f1f1f1; /* Handle color and track color */
+   scrollbar-width: none; /* Makes the scrollbar thin */
+   scrollbar-color: #02333f59 #f1f1f1; /* Handle color and track color */
 }
 
 /* Edge/IE scrollbar customization */
@@ -136,6 +139,6 @@ body {
 
 /* General scrollbar styling for other elements */
 .custom-scroll {
-   scrollbar-color: #888 #f1f1f1;
+   scrollbar-color: #000000 #f1f1f1;
    scrollbar-width: thin;
 }
