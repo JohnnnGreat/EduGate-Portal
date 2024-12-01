@@ -96,10 +96,6 @@ body {
    }
 }
 
-body {
-   background-color: #fcfcfc;
-}
-
 /* Style for WebKit-based browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
    width: 5px; /* Width of the scrollbar */
@@ -128,13 +124,13 @@ body {
 
 /* Firefox scrollbar customization (using new pseudo-elements) */
 * {
-   scrollbar-width: none; /* Makes the scrollbar thin */
+   scrollbar-width: thin; /* Makes the scrollbar thin */
    scrollbar-color: #02333f59 #f1f1f1; /* Handle color and track color */
 }
 
 /* Edge/IE scrollbar customization */
 body {
-   -ms-overflow-style: none; /* Disables the default scrollbar style on Internet Explorer */
+   -ms-overflow-style: scrollbar; /* Disables the default scrollbar style on Internet Explorer */
 }
 
 /* General scrollbar styling for other elements */
@@ -183,4 +179,24 @@ body {
    margin: 20px auto;
    max-width: 100%;
    border-radius: 8px;
+}
+
+.ant-pagination-item {
+   height: 30px !important;
+   width: 30px !important;
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   border-radius: 100% !important;
+   border: 1px solid rgb(240, 240, 240) !important;
+}
+
+.ant-pagination-item-active {
+   border: 1px solid black !important;
+}
+
+.ant-pagination {
+   display: flex !important;
+   gap: 0.7rem;
+   align-items: center;
 }

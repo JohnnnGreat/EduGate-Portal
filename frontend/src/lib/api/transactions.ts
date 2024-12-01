@@ -1,5 +1,5 @@
-import { AxiosError } from "axios";
-import axiosUserClient from "./axiosClient";
+import axios, { AxiosError } from "axios";
+import axiosUserClient, { axiosAdminClient } from "./axiosClient";
 import PaystackPop from "@paystack/inline-js";
 
 // Define the type for the payment mapping
@@ -180,6 +180,46 @@ export const getAllPaymentTransactions = async (): Promise<any> => {
    try {
       const response = await axiosUserClient.get("/payments/get-payments");
       return response?.data;
+   } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+         throw new Error(error.response.data.message || "An error occurred");
+      }
+      throw new Error("An unexpected error occurred");
+   }
+};
+
+export const exportTransactions = async (format: string) => {
+   try {
+      const response = await axiosAdminClient.get(`/payments/export?format=${format}`);
+
+      console.log(response);
+      return response?.data;
+   } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError && error.response) {
+         throw new Error(error.response.data.message || "An error occurred");
+      }
+      throw new Error("An unexpected error occurred");
+   }
+};
+
+export const verifyTrxAlt = async (referenceId: string) => {
+   try {
+      const response = await axiosAdminClient.get(`/payments/verify-trx/${referenceId}`);
+      return response.data;
+   } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+         throw new Error(error.response.data.message || "An error occurred");
+      }
+      throw new Error("An unexpected error occurred");
+   }
+};
+export const generateReport = async () => {
+   try {
+      const response = await axiosAdminClient.get(
+         `/payments/generate-payment`,
+      );
+      return response.data;
    } catch (error) {
       if (error instanceof AxiosError && error.response) {
          throw new Error(error.response.data.message || "An error occurred");

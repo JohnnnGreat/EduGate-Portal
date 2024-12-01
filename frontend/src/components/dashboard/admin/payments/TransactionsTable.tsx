@@ -18,7 +18,7 @@ const TransactionsTable = () => {
       status: payment.status,
    }));
    return (
-      <div className=" mx-auto mt-[1rem] pb-[5rem]">
+      <div className=" mt-[1rem]">
          <Table
             dataSource={dataSource}
             columns={columns}

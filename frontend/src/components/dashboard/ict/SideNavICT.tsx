@@ -13,15 +13,12 @@ const SideNavAdmin = () => {
    };
 
    return (
-      <div className="w-full border-r">
+      <div className="w-full ">
          <div>
             {adminDashboard.map((item, idx) => (
-               <div
-                  key={idx}
-                  className="border-b pr-1"
-               >
+               <div key={idx}>
                   <button
-                     className="w-full flex justify-between items-center py-[1rem] text-left hover:bg-[#02333F]"
+                     className="w-full flex justify-between items-center rounded-[10px] py-[1rem] text-left hover:text-[#02333F!important] transition-all hover:bg-[#02333f31] p-3"
                      onClick={() => toggleSection(idx)}
                   >
                      <div className="flex gap-[1rem] items-center text-[#000]/50 text-[14px]">
@@ -44,11 +41,11 @@ const SideNavAdmin = () => {
                      </svg>
                   </button>
                   <div
-                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                     className={`overflow-hidden transition-all duration-500 ease-in-out  ${
                         activeIndex === idx ? "max-h-screen" : "max-h-0"
                      }`}
                   >
-                     <ul className="px-[2rem] pb-2 text-gray-700 flex transition-all flex-col gap-[1rem]">
+                     <ul className="px-[2.7rem] pb-2 text-gray-700 flex transition-all flex-col gap-[1rem]">
                         {item.sub?.map((item, idx) => (
                            <Link
                               key={idx}

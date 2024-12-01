@@ -148,7 +148,7 @@ const updateAdmission = async (req, res) => {
          };
 
          const pdfBuffer = await generateAdmissionPDF(applicationData);
-
+         console.log(pdfBuffer);
          // Send PDF to another endpoint
          const formData = new FormData();
 

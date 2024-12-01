@@ -13,6 +13,9 @@ const {
    getPaymentListByLevel,
    checkMajorPayments,
    getAllPayments,
+   exportTransactions,
+   verifyTransaction,
+   generatePaymentReport,
 } = require("../controllers/Payments");
 const verifyToken = require("../middleware/authMiddleware");
 
@@ -31,6 +34,8 @@ router.get("/reference/:reference", getPaymentByReference);
 router.get("/get-level-based-payments", verifyToken, getPaymentListByLevel);
 router.get("/check-major-payments", verifyToken, checkMajorPayments);
 router.get("/get-payments", getAllPayments);
-
+router.get("/export", exportTransactions);
+router.get("/verify-trx/:reference", verifyTransaction);
+router.get("/generate-payment-report", generatePaymentReport);
 
 module.exports = router;
