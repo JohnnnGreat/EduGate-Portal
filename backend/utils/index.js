@@ -62,9 +62,40 @@ const generatePDFBuffer = async (data) => {
    });
 };
 
+// Comprehensive PDF options
+const pdfOptions = {
+   format: "A4",
+   orientation: "landscape",
+   border: {
+      top: "10mm",
+      right: "10mm",
+      bottom: "10mm",
+      left: "10mm",
+   },
+   header: {
+      height: "15mm",
+      contents: '<div style="text-align: center;">Payment Report <hr/> </div>',
+   },
+   footer: {
+      height: "15mm",
+      contents: {
+         first: "Page 1",
+         2: "Page 2",
+         default: '<span style="color: #444;">Page {{page}} of {{pages}}</span>',
+         last: "Last Page",
+      },
+   },
+   // Explicitly set the render engine
+   type: "pdf",
+   // phantomPath: "./node_modules/phantomjs/bin/phantomjs",
+};
+
+// PDF document configuration
+
 module.exports = {
    generateTokens,
    getDeparmentLabel,
    getFacultyLabel,
    generatePDFBuffer,
+   pdfOptions,
 };

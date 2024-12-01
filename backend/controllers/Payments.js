@@ -7,6 +7,14 @@ const { v4: uuidv4 } = require("uuid");
 const User = require("../models/User");
 const { paymentList } = require("../constant");
 
+const FormData = require("form-data");
+const pdf = require("pdf-creator-node");
+const path = require("path");
+const fs = require("fs").promises;
+const puppeteer = require("puppeteer"); // Make sure to install this
+const { AcroButtonFlags } = require("pdf-lib");
+const { pdfOptions } = require("../utils");
+
 // Create a new payment
 exports.createPayment = async (req, res) => {
    const { studentId, paymentType, amount, academicSession, semester } = req.body;
@@ -57,7 +65,6 @@ exports.verifyPayment = async (req, res) => {
    const { reference } = req.params;
 
    try {
-      // Assume we're using Paystack for payment verification
       const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
          headers: {
             Authorization: `Bearer sk_test_a29d35e1ffda0738696d0098fca366d0f4537923`,
@@ -108,6 +115,7 @@ exports.getPaymentListByLevel = async (req, res) => {
       res.status(500).json({ message: "Error Fetching Payment List", error: error.message });
    }
 };
+
 // Get all payments for a specific student
 exports.getStudentPayments = async (req, res) => {
    const studentId = req.user.userId;
@@ -255,9 +263,13 @@ exports.getAllPayments = async (req, res) => {
 
 exports.exportTransactions = async (req, res) => {
    const { format } = req.query;
-   console.log(format);
+
    try {
       const payments = await Payment.find().sort({ transactionDate: -1 }).populate("studentId");
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `CSV_TRX_${timestamp}.csv`;
+      const filepath = path.join(__dirname, filename);
 
       if (format === "csv") {
          const csvHeaders = "Name,Email,PaymentType,Amount,TransactionDate,Status\n";
@@ -277,14 +289,13 @@ exports.exportTransactions = async (req, res) => {
          // Combine headers and data
          const fullCsv = csvHeaders + csv;
 
-         // Create a Blob instead of using Buffer
-         const csvBlob = new Blob([fullCsv], { type: "text/csv" });
+         // Save the CSV to a temporary file
+         const tempFilePath = `./temp/${filename}`;
 
-         console.log(csvBlob);
+         require("fs").writeFileSync(tempFilePath, fullCsv);
 
-         // Create FormData instance
          const formData = new FormData();
-         formData.append("file", csvBlob, "transactions.csv");
+         formData.append("file", require("fs").createReadStream(tempFilePath));
 
          // Make POST request to upload endpoint
          const response = await axios.post(
@@ -297,10 +308,11 @@ exports.exportTransactions = async (req, res) => {
             },
          );
 
-         const { imageUrl } = response.data;
-         console.log(imageUrl);
+         const { fileUrl } = response.data;
 
-         res.json({ message: "CSV exported successfully", imageUrl });
+         await fs.unlink(`./temp/${filename}`);
+
+         res.json({ message: "CSV exported successfully", fileUrl });
       } else if (format === "xlsx") {
          // Generate a unique filename
          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -324,13 +336,13 @@ exports.exportTransactions = async (req, res) => {
          const buf = xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
 
          // Create a Blob for XLSX as well
-         const xlsxBlob = new Blob([buf], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-         });
+         // const xlsxBlob = new Blob([buf], {
+         //    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+         // });
 
          // Create FormData instance
          const formData = new FormData();
-         formData.append("file", xlsxBlob, filename);
+         formData.append("file", buf, filename);
 
          // Make POST request to upload endpoint
          const response = await axios.post(
@@ -345,7 +357,6 @@ exports.exportTransactions = async (req, res) => {
          );
 
          const { fileUrl } = response.data;
-         console.log(fileUrl);
 
          res.json({ message: "XLSX exported successfully", fileUrl });
       } else {
@@ -396,11 +407,6 @@ exports.verifyTransaction = async (req, res) => {
    }
 };
 
-const pdf = require("pdf-creator-node");
-const path = require("path");
-const fs = require("fs").promises;
-const puppeteer = require("puppeteer"); // Make sure to install this
-
 // Helper function to format currency
 const formatCurrency = (amount) => {
    return new Intl.NumberFormat("en-NG", {
@@ -423,10 +429,13 @@ exports.generatePaymentReport = async (req, res) => {
          },
          byType: {},
          byStudent: {},
+         successfullPayments: [],
+         failedPayments: [],
+         semesterStats: {},
       };
 
       // Process each payment
-      payments.forEach((payment) => {
+      payments.map((payment) => {
          const paymentType = payment.paymentType;
          const studentName =
             payment.studentId?.firstName + "" + payment.studentId?.lastName || "Unknown Student";
@@ -434,7 +443,6 @@ exports.generatePaymentReport = async (req, res) => {
          // Overall statistics
          paymentStats.overall.totalAmount += payment.amount;
          paymentStats.overall.totalCount++;
-
          // Payment type statistics
          if (!paymentStats.byType[paymentType]) {
             paymentStats.byType[paymentType] = {
@@ -466,125 +474,216 @@ exports.generatePaymentReport = async (req, res) => {
          paymentStats.byStudent[studentName].paymentTypes[paymentType].totalAmount +=
             payment.amount;
          paymentStats.byStudent[studentName].paymentTypes[paymentType].count++;
+
+         if (payment.status === "Success") {
+            paymentStats.successfullPayments.push(payment);
+         } else {
+            paymentStats.failedPayments.push(payment);
+         }
+
+         if (!paymentStats.semesterStats[payment.semester]) {
+            paymentStats.semesterStats[payment.semester] = { total: 0, payments: [] };
+         }
+
+         paymentStats.semesterStats[payment.semester].total += payment.amount;
+         paymentStats.semesterStats[payment.semester].payments.push(payment);
       });
+
+      const ob = Object.entries(paymentStats.semesterStats).map(([semester, information]) =>
+         console.log(semester, information),
+      );
 
       // Generate professional HTML template
       const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
-                .report-header { text-align: center; margin-bottom: 20px; }
-                .summary-section { margin-bottom: 20px; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f2f2f2; }
-            </style>
-        </head>
-        <body>
-            <div class="report-header">
-                <h1>Comprehensive Payment Report</h1>
-                <p>Generated on: ${new Date().toLocaleString()}</p>
-            </div>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+         <meta charset="UTF-8">
+         <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; font-size:13px !important; }
+            .report-header { text-align: center; margin-bottom: 20px; }
+            .summary-section { margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+         </style>
+      </head>
+      <body>
+         <div class="report-header">
+            <h1>Comprehensive Payment Report</h1>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+         </div>
 
-            <div class="summary-section">
-                <h2>Overall Summary</h2>
-                <p>Total Payments: ${paymentStats.overall.totalCount}</p>
-                <p>Total Amount: ${formatCurrency(paymentStats.overall.totalAmount)}</p>
-            </div>
+         <div class="summary-section">
+            <h2>Overall Summary</h2>
+            <p>Total Payments: ${paymentStats.overall.totalCount}</p>
+            <p>Total Amount: ${formatCurrency(paymentStats.overall.totalAmount)}</p>
+         </div>
 
-            <div class="summary-section">
-                <h2>Payments by Type</h2>
-                <table>
-                    <tr>
-                        <th>Payment Type</th>
-                        <th>Total Amount</th>
-                        <th>Number of Payments</th>
-                    </tr>
-                    ${Object.entries(paymentStats.byType)
-                       .map(
-                          ([type, stats]) => `
+         <div class="summary-section">
+            <h2>Payments by Type</h2>
+            <hr/>
+            <table>
+                  <tr>
+                     <th>Payment Type</th>
+                     <th>Total Amount</th>
+                     <th>Number of Payments</th>
+                  </tr>
+                  ${Object.entries(paymentStats.byType)
+                     .map(
+                        ([type, stats]) => `
                         <tr>
-                            <td>${type}</td>
-                            <td>${formatCurrency(stats.totalAmount)}</td>
-                            <td>${stats.count}</td>
+                              <td>${type}</td>
+                              <td>${formatCurrency(stats.totalAmount)}</td>
+                              <td>${stats.count}</td>
                         </tr>
-                    `,
-                       )
-                       .join("")}
-                </table>
-            </div>
+                     `,
+                     )
+                     .join("")}
+            </table>
+         </div>
 
-            <div class="summary-section">
-                <h2>Payments by Student</h2>
-                <table>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Total Amount</th>
-                        <th>Number of Payments</th>
-                        <th>Payment Types</th>
-                    </tr>
-                    ${Object.entries(paymentStats.byStudent)
-                       .map(
-                          ([student, stats]) => `
+         <div>
+            <h2>Successful Payments</h2>
+            <hr/>
+            <table>
+                  <tr>
+                     <th>Student Name</th>
+                     <th>Payment Type</th>
+                     <th>Payment Reference</th>
+                     <th>Amount</th>
+                     <th>Semester</th>
+                     <th>Payment Status</th>
+                  </tr>
+                  ${paymentStats.successfulPayments
+                     .map(
+                        (payment) => `
                         <tr>
-                            <td>${student}</td>
-                            <td>${formatCurrency(stats.totalAmount)}</td>
-                            <td>${stats.count}</td>
-                            <td>
-                                ${Object.entries(stats.paymentTypes)
-                                   .map(
-                                      ([type, typeStats]) =>
-                                         `${type}: ${formatCurrency(typeStats.totalAmount)} (${
-                                            typeStats.count
-                                         } payments)`,
-                                   )
-                                   .join("<br>")}
-                            </td>
+                              <td>${payment.studentId?.firstName ?? "Unknown"}</td>
+                              <td>${payment.paymentType}</td>
+                              <td>${payment.reference}</td>
+                              <td>${formatCurrency(payment.amount)}</td>
+                              <td>${payment.semester}</td>
+                              <td>${payment.status}</td>
                         </tr>
-                    `,
-                       )
-                       .join("")}
-                </table>
-            </div>
-        </body>
-        </html>
-        `;
+                     `,
+                     )
+                     .join("")}
+            </table>
+         </div>
+
+         <div>
+            <h2>Failed Payments</h2>
+            <hr/>
+            <table>
+                  <tr>
+                     <th>Student Name</th>
+                     <th>Payment Type</th>
+                     <th>Payment Reference</th>
+                     <th>Amount</th>
+                     <th>Semester</th>
+                     <th>Payment Status</th>
+                  </tr>
+                  ${paymentStats.failedPayments
+                     .map(
+                        (payment) => `
+                        <tr>
+                              <td>${payment.studentId?.firstName || "Unknown"} ${
+                           payment.studentId?.lastName || ""
+                        }</td>
+                              <td>${payment.paymentType}</td>
+                              <td>${payment.reference}</td>
+                              <td>${formatCurrency(payment.amount)}</td>
+                              <td>${payment.semester}</td>
+                              <td>${payment.status}</td>
+                        </tr>
+                     `,
+                     )
+                     .join("")}
+            </table>
+         </div>
+
+         ${Object.entries(paymentStats.semesterStats)
+            .map(
+               ([semester, information]) => `
+                  <div>
+                     <h2>${semester}</h2>
+                     <div>
+                        <h1>Total Payment for the Semester</h1>
+                        <p>Total Amount: ${formatCurrency(information.total)}</p>
+                     </div>
+                     <table>
+                        <tr>
+                              <th>Student Name</th>
+                              <th>Payment Type</th>
+                              <th>Payment Reference</th>
+                              <th>Amount</th>
+                              <th>Semester</th>
+                              <th>Payment Status</th>
+                        </tr>
+                        ${information.payments
+                           .map(
+                              (payment) => `
+                                 <tr>
+                                    <td>${payment.studentId?.firstName || "Unknown"} ${
+                                 payment.studentId?.lastName || ""
+                              }</td>
+                                    <td>${payment.paymentType}</td>
+                                    <td>${payment.reference}</td>
+                                    <td>${formatCurrency(payment.amount)}</td>
+                                    <td>${payment.semester}</td>
+                                    <td>${payment.status}</td>
+                                 </tr>
+                              `,
+                           )
+                           .join("")}
+                     </table>
+                  </div>
+            `,
+            )
+            .join("")}
+
+         <div class="summary-section">
+            <h2>Payments by Student</h2>
+            <hr/>
+            <table>
+                  <tr>
+                     <th>Student Name</th>
+                     <th>Total Amount</th>
+                     <th>Number of Payments</th>
+                     <th>Payment Types</th>
+                  </tr>
+                  ${Object.entries(paymentStats.byStudent)
+                     .map(
+                        ([student, stats]) => `
+                        <tr>
+                              <td>${student}</td>
+                              <td>${formatCurrency(stats.totalAmount)}</td>
+                              <td>${stats.count}</td>
+                              <td>
+                                 ${Object.entries(stats.paymentTypes)
+                                    .map(
+                                       ([type, typeStats]) =>
+                                          `${type}: ${formatCurrency(typeStats.totalAmount)} (${
+                                             typeStats.count
+                                          } payments)`,
+                                    )
+                                    .join("<br>")}
+                              </td>
+                        </tr>
+                     `,
+                     )
+                     .join("")}
+            </table>
+         </div>
+      </body>
+      </html>
+`;
 
       // Unique filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const filename = `payment-report_${timestamp}.pdf`;
       const filepath = path.join(__dirname, filename);
-
-      // Comprehensive PDF options
-      const options = {
-         format: "A3",
-         orientation: "portrait",
-         border: {
-            top: "10mm",
-            right: "10mm",
-            bottom: "10mm",
-            left: "10mm",
-         },
-         header: {
-            height: "15mm",
-            contents: '<div style="text-align: center;">Payment Report</div>',
-         },
-         footer: {
-            height: "15mm",
-            contents: {
-               first: "Page 1",
-               2: "Page 2",
-               default: '<span style="color: #444;">Page {{page}} of {{pages}}</span>',
-               last: "Last Page",
-            },
-         },
-         // Explicitly set the render engine
-         type: "pdf",
-         // phantomPath: "./node_modules/phantomjs/bin/phantomjs",
-      };
 
       // PDF document configuration
       const document = {
@@ -597,12 +696,11 @@ exports.generatePaymentReport = async (req, res) => {
       };
 
       // Generate PDF
-      await pdf.create(document, options);
+      const pdfBuffer = await pdf.create(document, pdfOptions);
 
       // Send the file
       res.download(filepath, filename, async (err) => {
          if (err) {
-            console.error("Download error:", err);
             return res.status(500).json({
                message: "Error downloading payment report",
                error: err.message,
@@ -611,9 +709,29 @@ exports.generatePaymentReport = async (req, res) => {
 
          // Clean up file after download
          try {
+            const formData = new FormData();
+
+            const fileBuffer = require("fs").readFileSync(filepath);
+
+            formData.append("file", fileBuffer, filename);
+
+            // Example of uploading
+            const response = await axios.post(
+               "https://appwrite-express-file-upload.onrender.com/upload",
+               formData,
+               {
+                  headers: {
+                     "Content-Type": "application/pdf",
+                  },
+                  maxBodyLength: Infinity,
+                  maxContentLength: Infinity,
+               },
+            );
+            const { fileUrl } = response?.data;
+
             await fs.unlink(filepath);
          } catch (cleanupError) {
-            console.error("Error cleaning up PDF:", cleanupError);
+            // console.error("Error cleaning up PDF:", cleanupError);
          }
       });
    } catch (error) {

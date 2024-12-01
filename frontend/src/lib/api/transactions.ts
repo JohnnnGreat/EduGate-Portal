@@ -217,7 +217,7 @@ export const verifyTrxAlt = async (referenceId: string) => {
 export const generateReport = async () => {
    try {
       const response = await axiosAdminClient.get(
-         `/payments/generate-payment`,
+         `/payments/generate-payment-report/${referenceId}`,
       );
       return response.data;
    } catch (error) {

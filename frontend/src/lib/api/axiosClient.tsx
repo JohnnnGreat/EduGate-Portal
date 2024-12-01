@@ -19,7 +19,7 @@ export const axiosAdminClient = axios.create({
 // Add a request interceptor to get the latest token before each request
 axiosUserClient.interceptors.request.use((config) => {
    const token = localStorage.getItem("EdAccess");
-   console.log(token);
+
    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
    }
@@ -27,7 +27,7 @@ axiosUserClient.interceptors.request.use((config) => {
 });
 axiosAdminClient.interceptors.request.use((config) => {
    const token = localStorage.getItem("EdAccess");
-   console.log(token);
+
    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
    }

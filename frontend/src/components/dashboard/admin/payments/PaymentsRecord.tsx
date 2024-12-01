@@ -14,6 +14,7 @@ import { Divider, message } from "antd";
 import SelectField from "@/components/form/SelectField";
 import { exportTransactions } from "@/lib/api/transactions";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 const payment = z.object({
    reference: z.string().min(2, { message: "Academic session must be at least 2 characters." }),
@@ -41,6 +42,8 @@ const PaymentsRecord = () => {
 
    const [isLoading, setIsLoading] = useState(false);
 
+   const [fileUrl, setFileUrl] = useState("");
+
    const onExportSelected = async (values: z.infer<typeof exportOptions>) => {
       try {
          const format = values?.format;
@@ -48,6 +51,10 @@ const PaymentsRecord = () => {
          const response = await exportTransactions(format);
 
          console.log(response);
+
+         toast.success(response.message);
+
+         setFileUrl(response.fileUrl);
       } catch (error) {
          toast.error(error?.message);
       }
@@ -115,14 +122,29 @@ const PaymentsRecord = () => {
                   />
 
                   <div className="flex gap-4">
-                     <button
+                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-[#02333F] cursor-pointer  py-3 px-[2rem] font-bold text-white flex gap-2 rounded-[10px]"
+                        className="bg-[#02333F!important] cursor-pointer  py-3 px-[2rem] font-bold text-white flex gap-2 "
                      >
                         Export
                         {isLoading && <Loader2 />}
-                     </button>
+                     </Button>
+                     {fileUrl && (
+                        <Button
+                           type="button"
+                           variant="outline"
+                           disabled={isLoading}
+                           className="border-[#02333F!important] cursor-pointer  py-3 px-[2rem] font-bold text-gray-800 flex gap-2"
+                        >
+                           <Link
+                              target="_blank"
+                              href={fileUrl}
+                           >
+                              Download
+                           </Link>
+                        </Button>
+                     )}
                   </div>
                </form>
             </Form>
