@@ -227,3 +227,16 @@ export const generateReport = async () => {
       throw new Error("An unexpected error occurred");
    }
 };
+export const generateReportType = async (reportType: string) => {
+   try {
+      const response = await axiosAdminClient.get(
+         `/payments/generate-records?recordType=${reportType}`,
+      );
+      return response.data;
+   } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+         throw new Error(error.response.data.message || "An error occurred");
+      }
+      throw new Error("An unexpected error occurred");
+   }
+};

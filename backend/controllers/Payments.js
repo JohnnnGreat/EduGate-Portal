@@ -751,7 +751,7 @@ exports.generateRecords = async (req, res) => {
 
       console.log(recordType);
 
-      if (recordType === "paid_students_record") {
+      if (recordType === "Paid Students Report") {
          const paidStudentsRecord = {
             total: 0,
             paidStudents: [],
