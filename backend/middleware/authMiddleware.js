@@ -10,11 +10,12 @@ const verifyToken = (req, res, next) => {
       // If there's no token, return an error
       return res.status(401).json({ message: "Access denied. No token provided." });
    }
-   
+
    try {
       // Verify the token using the secret key
       const decoded = jwt.verify(token, "RANDOM");
-   
+
+      console.log(decoded);
       // Add the decoded token data to the request object
       req.user = decoded;
       next(); // Proceed to the next middleware/route handler

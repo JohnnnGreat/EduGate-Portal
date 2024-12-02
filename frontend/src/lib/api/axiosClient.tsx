@@ -25,8 +25,9 @@ axiosUserClient.interceptors.request.use((config) => {
    }
    return config;
 });
+
 axiosAdminClient.interceptors.request.use((config) => {
-   const token = localStorage.getItem("EdAccess");
+   const token = localStorage.getItem("adminAccess");
 
    if (token) {
       config.headers.Authorization = `Bearer ${token}`;

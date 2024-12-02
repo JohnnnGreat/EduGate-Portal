@@ -16,6 +16,7 @@ const {
    exportTransactions,
    verifyTransaction,
    generatePaymentReport,
+   generateRecords,
 } = require("../controllers/Payments");
 const verifyToken = require("../middleware/authMiddleware");
 
@@ -37,5 +38,6 @@ router.get("/get-payments", getAllPayments);
 router.get("/export", exportTransactions);
 router.get("/verify-trx/:reference", verifyTransaction);
 router.get("/generate-payment-report", generatePaymentReport);
+router.get("/generate-records", generateRecords);
 
 module.exports = router;

@@ -13,7 +13,8 @@ const path = require("path");
 const fs = require("fs").promises;
 const puppeteer = require("puppeteer"); // Make sure to install this
 const { AcroButtonFlags } = require("pdf-lib");
-const { pdfOptions } = require("../utils");
+const { pdfOptions, getFacultyLabel, getDeparmentLabel } = require("../utils");
+const { generatePaymentReport } = require("../Templates/paidStudentsReport");
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
@@ -740,6 +741,124 @@ exports.generatePaymentReport = async (req, res) => {
          message: "Error generating payment report",
          error: error.message,
       });
+   }
+};
+
+// Generate Records
+exports.generateRecords = async (req, res) => {
+   try {
+      const { recordType } = req.query;
+
+      console.log(recordType);
+
+      if (recordType === "paid_students_record") {
+         const paidStudentsRecord = {
+            total: 0,
+            paidStudents: [],
+            paymentType: {},
+         };
+         const paidStudents = await Payment.find({
+            status: "Success",
+         }).populate("studentId");
+
+         for (const paid of paidStudents) {
+            paidStudentsRecord.total += paid.amount;
+
+            const studentAdmission = await Admission.findOne({
+               admissionNumber: paid.studentId.admissionNumber,
+            }).populate("user");
+
+            const studentInformation = {
+               firstName: studentAdmission?.user.firstName,
+               lastName: studentAdmission?.user.lastName,
+               matNo: studentAdmission?.matNumber,
+               faculty: getFacultyLabel(studentAdmission?.program.faculty),
+               department: getDeparmentLabel(
+                  studentAdmission?.program?.faculty,
+                  studentAdmission?.program?.department,
+               ),
+            };
+
+            const paidByStudent = studentInformation.firstName + " " + studentInformation.lastName;
+
+            // Push to the paidStudents array
+            paidStudentsRecord.paidStudents.push(studentInformation);
+
+            // All SuccessfullPayment Types
+            if (!paidStudentsRecord.paymentType[paid.paymentType]) {
+               paidStudentsRecord.paymentType[paid.paymentType] = {
+                  total: 0,
+                  paidBy: [],
+               };
+            }
+
+            paidStudentsRecord.paymentType[paid.paymentType].total += paid.amount;
+            paidStudentsRecord.paymentType[paid.paymentType].paidBy.push(studentInformation);
+         }
+
+         const htmlContent = await generatePaymentReport(
+            paidStudentsRecord.total,
+            paidStudentsRecord.paidStudents,
+            paidStudentsRecord.paymentType,
+         );
+
+         // Unique filename with timestamp
+         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+         const filename = `paid_students_report_${timestamp}.pdf`;
+         const filepath = path.join(__dirname, filename);
+
+         // PDF document configuration
+         const document = {
+            html: htmlContent,
+            data: {
+               // You can pass dynamic data here if needed
+            },
+            path: filepath,
+            type: "", // Keep this empty or remove
+         };
+
+         // Generate PDF
+         const pdfBuffer = await pdf.create(document, pdfOptions);
+
+         try {
+            const formData = new FormData();
+
+            const fileBuffer = require("fs").readFileSync(filepath);
+
+            formData.append("file", fileBuffer, filename);
+
+            // Example of uploading
+            const response = await axios.post(
+               "https://appwrite-express-file-upload.onrender.com/upload",
+               formData,
+               {
+                  headers: {
+                     "Content-Type": "application/pdf",
+                  },
+                  maxBodyLength: Infinity,
+                  maxContentLength: Infinity,
+               },
+            );
+            const { fileUrl } = response?.data;
+
+            await fs.unlink(filepath);
+
+            return res.status(200).json({
+               message: "Record for Paid Student Retrieved",
+               payload: paidStudentsRecord,
+               fileUrl: fileUrl,
+            });
+         } catch (error) {
+            console.error("Report generation error:", error);
+            res.status(500).json({
+               message: "Error generating payment report",
+               error: error.message,
+            });
+         }
+      }
+   } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "An error occurred." });
    }
 };
 

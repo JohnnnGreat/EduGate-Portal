@@ -19,76 +19,76 @@ import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 
 import { toast } from "react-toastify";
-import { loginUserDashboard } from "@/lib/api/user";
-import { useRouter } from "next/navigation";
+import { checkUserAdmission } from "@/lib/api/user";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { loginAdmin, loginAdminEmail } from "@/lib/api/admin";
 
 const userSchema = z.object({
-   email: z.string().min(2, {
-      message: "Email must be at least 2 characters.",
+   password: z.string().min(2, {
+      message: "Password is Required",
    }),
-   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-const LoginComponent = () => {
-   const [isError, setIsError] = useState(false);
-
+const LoginPassword = () => {
    const router = useRouter();
 
+   const adminEmail = useSearchParams().get("email");
+
+   const [isError, setIsError] = useState(false);
+
+   const [email, setEmail] = useState("");
+
    const { mutateAsync, isPending, data } = useMutation({
-      mutationFn: (values: z.infer<typeof userSchema>) => loginUserDashboard(values),
-      onError: (error: any) => {
+      mutationFn: (values: { email: string | null; password: string | null }) => loginAdmin(values),
+
+      onError: (error) => {
          toast.error(error.message);
          setIsError(true);
       },
 
       onSuccess: (data) => {
+         console.log(data);
          toast.success(data.message);
-
-         localStorage.setItem("EdAccess", data.access);
-         localStorage.setItem("EdRefresh", data.refresh);
-
-         router.push("/accounts/user/dashboard");
+         localStorage.setItem("adminAccess", data.access);
+         localStorage.setItem("adminRefresh", data.refresh);
       },
    });
 
    const form = useForm<z.infer<typeof userSchema>>({
       resolver: zodResolver(userSchema),
+
       defaultValues: {
-         email: "",
          password: "",
       },
    });
 
    async function onSubmit(values: z.infer<typeof userSchema>) {
-      await mutateAsync(values);
-      await form.reset();
+      const requestBody = {
+         email: adminEmail,
+         password: values.password,
+      };
+
+      console.log(requestBody);
+      await mutateAsync(requestBody);
    }
+
+   function onError(err) {
+      console.log(err);
+   }
+
    return (
       <div className="flex items-center justify-center h-screen">
          <div className="w-full md:w-[500px]">
-            <h1 className="font-bold text-[#000]/80 text-[25px]">Login</h1>
-            <p className="leading-relaxed text-[#000]/45">Login to your dashboard</p>
+            <h1 className="font-bold text-[#000]/80 text-[25px]">
+               Welcome, <span className="font-normal">{adminEmail}</span>
+            </h1>
+
             <Form {...form}>
                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={form.handleSubmit(onSubmit, onError)}
                   className="bg-[#F8F8F8] p-[2rem] mt-[1.2rem] rounded-[20px] space-y-2 "
                >
-                  <FormField
-                     control={form.control}
-                     name="email"
-                     render={({ field }) => (
-                        <FormItem>
-                           <FormControl>
-                              <Input
-                                 placeholder="Enter Your Email Address"
-                                 {...field}
-                                 className="bg-white py-[1.6rem] shadow-none px-[1rem] outline-none border-none"
-                              />
-                           </FormControl>
-                           <FormMessage />
-                        </FormItem>
-                     )}
-                  />
                   <FormField
                      control={form.control}
                      name="password"
@@ -96,9 +96,9 @@ const LoginComponent = () => {
                         <FormItem>
                            <FormControl>
                               <Input
-                                 placeholder="Enter Your Password"
+                                 placeholder="Please enter your password"
                                  {...field}
-                                 autoComplete="off"
+                                 type="password"
                                  className="bg-white py-[1.6rem] shadow-none px-[1rem] outline-none border-none"
                               />
                            </FormControl>
@@ -106,17 +106,35 @@ const LoginComponent = () => {
                         </FormItem>
                      )}
                   />
-                  <p className="my-[.8rem] text-[.8rem] text-right">Forgotten Password?</p>
                   <Button
                      className="w-full bg-[#02333F] py-[1.6rem] font-bold"
                      type="submit"
+                     disabled={isPending}
                   >
-                     Login
+                     {isPending ? (
+                        <>
+                           Continue
+                           <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        </>
+                     ) : (
+                        "Login"
+                     )}
                   </Button>
+
+                  {isError && (
+                     <Link
+                        href="/admission/register"
+                        className="text-red-500 text-[.8rem] underline"
+                     >
+                        We could not find an account associated with the provided email and
+                        admission ID
+                     </Link>
+                  )}
                </form>
             </Form>
          </div>
       </div>
    );
 };
-export default LoginComponent;
+
+export default LoginPassword;

@@ -90,6 +90,28 @@ const pdfOptions = {
    // phantomPath: "./node_modules/phantomjs/bin/phantomjs",
 };
 
+const generateAdminTokens = (admin) => {
+   const accessToken = jwt.sign(
+      {
+         adminId: admin._id,
+         email: admin.email,
+      },
+      "RANDOM",
+      { expiresIn: "7d" },
+   );
+
+   // Generate refresh token
+   const refreshToken = jwt.sign(
+      {
+         adminId: admin._id,
+      },
+      "RANDOM",
+      { expiresIn: "7d" }, // Longer lived refresh token
+   );
+
+   return { accessToken, refreshToken };
+};
+
 // PDF document configuration
 
 module.exports = {
@@ -98,4 +120,5 @@ module.exports = {
    getFacultyLabel,
    generatePDFBuffer,
    pdfOptions,
+   generateAdminTokens,
 };

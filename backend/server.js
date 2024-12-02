@@ -4,7 +4,9 @@ const userRoutes = require("./routes/userRoutes");
 const admissionRoutes = require("./routes/applicationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const hostelRoutes = require("./routes/hostelRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const cors = require("cors");
+const { createAdmin } = require("./controllers/Admin");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +32,9 @@ app.use("/api/user", userRoutes);
 app.use("/api/admission", admissionRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/hostel", hostelRoutes);
+app.use("/api/admin", adminRoutes);
+
+createAdmin();
 
 app.listen(PORT, () => {
    console.log(`Server is running on port ${PORT}`);

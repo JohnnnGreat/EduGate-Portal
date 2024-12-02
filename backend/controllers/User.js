@@ -330,6 +330,8 @@ const getUserInformation = async (req, res) => {
    }
 };
 
+
+
 module.exports = {
    checkIfAdmitted,
    registerNewStudent,
