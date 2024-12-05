@@ -46,10 +46,12 @@ This university portal project has been temporarily discontinued due to technica
   6. Staffs Profile
 
 ### Technical Stack
-  1. Frontend - Next.js, Tanstack Query, ShadcnUI, TailwindCSS, Paystack
+  1. Frontend - Next.js, Tanstack Query, ShadcnUI, TailwindCSS, 
   2. Backend - Node.js, Express.js, Node Cron,
   3. Database - MongoDB (Mongoose as ORM)
-  5. Files Upload - Appwrite Storag
+  5. Files Upload - Appwrite Storage
+  6. Authentication - JsonWebToken
+  7. Payment Gateway - Paystack
 
 
 ## Interested Collaborators
