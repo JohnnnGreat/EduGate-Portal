@@ -3,17 +3,7 @@ const User = require("../models/User");
 
 // Controller to create a new hostel
 exports.createHostel = async (req, res) => {
-   const {
-      name,
-      pricePerSemester,
-      genderRestriction,
-      rooms,
-      totalRooms,
-      description,
-      facilities,
-      address,
-      contactInfo,
-   } = req.body;
+   const { name, pricePerSemester, genderRestriction, rooms, totalRooms, description, facilities, address, contactInfo } = req.body;
 
    try {
       // Calculate total beds and available beds
@@ -115,6 +105,7 @@ exports.getHostelById = async (req, res) => {
       });
    }
 };
+
 exports.applyForHostel = async (req, res) => {
    const { hostelId } = req.params;
    const studentId = req.user.userId;
@@ -161,24 +152,6 @@ exports.applyForHostel = async (req, res) => {
       });
 
       await newBooking.save();
-
-      // const updatedHostel = await Hostel.findOneAndUpdate(
-      //    {
-      //       _id: hostelId,
-      //       "rooms._id": selectedRoom._id,
-      //    },
-      //    {
-      //       $push: { "rooms.$.occupants": { studentId } },
-      //    },
-      //    { new: true },
-      // );
-
-      // console.log(updatedHostel);
-
-      // selectedRoom.bedsAvailable -= 1;
-      // selectedRoom.occupants.push({ studentId: student._id });
-
-      // await hostel.save();
 
       res.status(201).json({
          success: true,
