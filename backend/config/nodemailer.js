@@ -4,8 +4,8 @@ const transporter = nodemailer.createTransport({
    service: "Gmail",
    secure: true,
    auth: {
-      user: "scholarhubbot@gmail.com", // Your email address
-      pass: "vqrrtrkcnmdicsht", // Your email password or app-specific password
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
    },
 });
 

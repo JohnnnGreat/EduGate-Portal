@@ -10,8 +10,6 @@ const moment = require("moment");
 // 1. Create a New Admission
 const createAdmission = async (req, res) => {
    try {
-      const { phoneNumber, fullName, email, address, dateOfBirth } = req.body;
-
       const user = await User.findByIdAndUpdate(
          req.user.userId,
          {
@@ -97,15 +95,7 @@ const getAdmissionByUserId = async (req, res) => {};
 
 // 5. Update Admission Information
 const updateAdmission = async (req, res) => {
-   const {
-      academicSession,
-      department,
-      faculty,
-      modeOfEntry,
-      birthCertificate,
-      oLevelResult,
-      submitted,
-   } = req.body;
+   const { academicSession, department, faculty, modeOfEntry, birthCertificate, oLevelResult, submitted } = req.body;
    try {
       const existingAdmission = await Admission.find({ admissionNumber: req.user.admissionNumber });
 
@@ -139,10 +129,7 @@ const updateAdmission = async (req, res) => {
             dob: "10/12/2002",
             admissionNo: user.admissionNumber,
             admissionStatus: "Not Admitted",
-            department: getDeparmentLabel(
-               updatedAdmission?.program?.faculty,
-               updatedAdmission?.program?.department,
-            ),
+            department: getDeparmentLabel(updatedAdmission?.program?.faculty, updatedAdmission?.program?.department),
             faculty: getFacultyLabel(updatedAdmission?.program.faculty),
             modeOfEntry: updatedAdmission?.program?.modeOfEntry,
          };
@@ -157,15 +144,11 @@ const updateAdmission = async (req, res) => {
             contentType: "application/pdf",
          });
 
-         const response = await axios.post(
-            "https://appwrite-express-file-upload.onrender.com/upload",
-            formData,
-            {
-               headers: {
-                  ...formData.getHeaders(),
-               },
+         const response = await axios.post(process.env.FILE_UPLOAD_ENDPOINT, formData, {
+            headers: {
+               ...formData.getHeaders(),
             },
-         );
+         });
 
          const { fileUrl } = response.data;
 
