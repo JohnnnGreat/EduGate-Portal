@@ -38,6 +38,7 @@ const GenerateRecordsComponent = () => {
 
    const [reportPayload, setReportPayload] = useState(null);
 
+   const [fileUrl, setFileUrl] = useState("");
    const onSubmit = async (value: any) => {
       try {
          const response = await generateReportType(value.reportType);
@@ -45,6 +46,8 @@ const GenerateRecordsComponent = () => {
 
          console.log(response);
          setReportPayload(response?.payload);
+
+         setFileUrl(response?.fileUrl);
       } catch (error) {
          toast.error(error?.message);
          console.log(error);
@@ -77,11 +80,9 @@ const GenerateRecordsComponent = () => {
                </form>
             </Form>
 
-            <Divider className="my-[3rem]" />
-
             {reportPayload && (
                <div>
-                  <Link href={reportPayload?.fileUrl}>Download Pdf</Link>
+                  <Link href={fileUrl}>Download Pdf</Link>
                   <PaymentReport
                      totalAmount={reportPayload?.total}
                      paidStudents={reportPayload?.paidStudents ?? []}

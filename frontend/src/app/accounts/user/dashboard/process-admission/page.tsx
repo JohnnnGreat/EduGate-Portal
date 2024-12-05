@@ -10,12 +10,7 @@ import React, { useState, useEffect } from "react";
 
 const AdmissionProcessPage = () => {
    const stepLevel = useSearchParams().get("idx");
-   const [paymentDone, setPaymentDone] = useState(false);
 
-   // useEffect(() => {
-   //    const paymentType = "Acceptance Fee";
-   //    checkPayment(paymentType).then((response) => setPaymentDone(response.data.success));
-   // }, [paymentDone]);
 
    if (stepLevel === "0") {
       return <StepOne />;

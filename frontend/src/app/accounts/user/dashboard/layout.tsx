@@ -9,8 +9,8 @@ const DashboardLayout = ({ children }) => {
 
    console.log(user);
    return (
-      <div className="h-screen p-[1rem] flex gap-[.6rem]">
-         <div className="bg-[#02333F] w-[250px] rounded-[20px] p-[1rem]  overflow-y-scroll">
+      <div className="h-screen md:p-[1rem] flex gap-[.6rem]">
+         <div className="bg-[#02333F] w-0 md:w-[250px] rounded-[20px] md:p-[1rem]  overflow-hidden md:overflow-y-scroll">
             <SideNav />
          </div>
          <div className="flex-1 overflow-y-scroll">

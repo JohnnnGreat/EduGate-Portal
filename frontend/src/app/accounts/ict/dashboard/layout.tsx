@@ -13,7 +13,7 @@ const AdminLayout = ({ children }) => {
    return (
       <div className="h-full bg-white  overflow-hidden">
          <div className="flex gap-[.6rem] h-full">
-            <div className=" w-[300px]  p-[1rem] pb-[5rem] overflow-y-auto border-r">
+            <div className=" w-[300px] h-screen p-[1rem] pb-[5rem] overflow-y-auto border-r">
                <div className="h-[80px]  mb-[.6rem]">
                   <AdminHeader />
                </div>

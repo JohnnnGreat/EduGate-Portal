@@ -130,7 +130,9 @@ body {
 
 /* Edge/IE scrollbar customization */
 body {
-   -ms-overflow-style: scrollbar; /* Disables the default scrollbar style on Internet Explorer */
+   -ms-overflow-style: scrollbar;
+   background-color: #fcfcfc !important;
+   /* Disables the default scrollbar style on Internet Explorer */
 }
 
 /* General scrollbar styling for other elements */

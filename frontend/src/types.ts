@@ -65,11 +65,11 @@ interface Room {
    isOccupied: boolean;
    bedsAvailable: number;
    bedCapacity: number;
-   occupants: Occupant[]; 
+   occupants: Occupant[];
 }
 
 interface Occupant {
-   studentId?: string; 
+   studentId?: string;
    dateAllocated?: string;
 }
 
@@ -80,18 +80,18 @@ interface ContactInfo {
 
 interface Availability {
    bedsAvailable: number;
-   status: "Available" | "Unavailable"; 
+   status: "Available" | "Unavailable";
 }
 
 export interface Hostel {
    _id: string;
    name: string;
    pricePerSemester: number;
-   genderRestriction: "Male Only" | "Female Only" | "Mixed Gender"; 
+   genderRestriction: "Male Only" | "Female Only" | "Mixed Gender";
    rooms: Room[];
    totalRooms: number;
    description: string;
-   facilities: string[]; 
+   facilities: string[];
    address: string;
    contactInfo: ContactInfo;
    availability: Availability;
@@ -103,4 +103,12 @@ export interface Booking {
    roomNumber: string;
    studentId: User;
    dateBooking: Date;
+}
+
+export interface Ticket {
+   _id: string;
+   ticketId: string;
+   status: string;
+   issueDescription: string;
+   createdAt: string;
 }

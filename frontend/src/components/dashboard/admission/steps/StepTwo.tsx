@@ -15,9 +15,7 @@ import TextField from "@/components/form/TextField";
 import { departmentMapping, faculties } from "../../constants";
 
 const stepOneSchema = z.object({
-   academicSession: z
-      .string()
-      .min(2, { message: "Academic session must be at least 2 characters." }),
+   academicSession: z.string().min(2, { message: "Academic session must be at least 2 characters." }),
    modeOfEntry: z.enum(["UTME", "Transfer", "Direct Entry"], {
       message: "Mode of Entry must be selected.",
    }),
@@ -35,8 +33,11 @@ const StepTwo = () => {
    });
 
    const [isError, setIsError] = useState(false);
+
    const router = useRouter();
+
    const stepLevel = useSearchParams().get("idx");
+
    const applicationLevel = JSON.parse(localStorage.getItem("applicationLevel") ?? "0");
 
    const { mutateAsync, isPending } = useMutation({
@@ -55,6 +56,7 @@ const StepTwo = () => {
    const { isValid, isSubmitting } = form.formState;
 
    const [selectedFaculty, setSelectedFaculty] = useState<string>("");
+
    const [departments, setDepartments] = useState<{ label: string; value: string }[]>([]);
 
    const handleFacultyChange = (faculty: string) => {
@@ -87,9 +89,7 @@ const StepTwo = () => {
    return (
       <div className="p-8 bg-white rounded-2xl mt-4">
          <h1 className="text-xl font-bold mb-2">Your Academic Information</h1>
-         <p className="text-base text-gray-500">
-            Let’s talk about your academic background and the program you're applying for.
-         </p>
+         <p className="text-base text-gray-500">Let’s talk about your academic background and the program you're applying for.</p>
 
          <Form {...form}>
             <form

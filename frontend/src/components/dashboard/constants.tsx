@@ -82,7 +82,7 @@ export const dashboardSideNav = [
    {
       title: "Support",
       icon: <LifeBuoy />,
-      href: "/support",
+      href: "/accounts/user/dashboard/support?idx=0",
    },
    {
       title: "Announcement",

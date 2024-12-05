@@ -5,6 +5,7 @@ const admissionRoutes = require("./routes/applicationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const hostelRoutes = require("./routes/hostelRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const ticketRoutes = require("./routes/ticketRoutes");
 const cors = require("cors");
 const { createAdmin } = require("./controllers/Admin");
 
@@ -33,6 +34,7 @@ app.use("/api/admission", admissionRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/hostel", hostelRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/tickets", ticketRoutes);
 
 createAdmin();
 

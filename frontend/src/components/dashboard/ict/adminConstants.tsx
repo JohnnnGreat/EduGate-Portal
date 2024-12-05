@@ -54,7 +54,40 @@ export const adminDashboard = [
             />
          </svg>
       ),
-      href: "/accounts/user/dashboard/process-admission",
+      sub: [
+         {
+            title: "All Staff",
+            href: "/accounts/ict/dashboard/payments/overview",
+         },
+         {
+            title: "Add New Staff",
+            href: "/accounts/ict/dashboard/payments/records",
+         },
+         {
+            title: "Staff Profiles",
+            href: "/accounts/ict/dashboard/payments/verification",
+         },
+         {
+            title: "Department Management",
+            href: "/accounts/ict/dashboard/payments/generate-records",
+         },
+         {
+            title: "Roles and Permissions",
+            href: "/accounts/ict/dashboard/payments/payments-settings",
+         },
+         {
+            title: "Attendance & Leave",
+            href: "/accounts/ict/dashboard/payments/payments-settings",
+         },
+         {
+            title: "Performance Evaluation",
+            href: "/accounts/ict/dashboard/payments/payments-settings",
+         },
+         {
+            title: "Retirement & Exit",
+            href: "/accounts/ict/dashboard/payments/payments-settings",
+         },
+      ],
    },
    {
       title: "Payments",
@@ -117,7 +150,37 @@ export const adminDashboard = [
             />
          </svg>
       ),
-      href: "/results",
+      sub: [
+         {
+            title: "Hostel Allocation",
+            href: "/accounts/ict/dashboard/hostel/hostel-allocation",
+         },
+         {
+            title: "Hostel Rooms",
+            href: "/accounts/ict/dashboard/hostel/hostel-rooms",
+         },
+         {
+            title: "Payment Management",
+            href: "/accounts/ict/dashboard/hostel/payment-mgt",
+         },
+
+         {
+            title: "Hostel Reports",
+            href: "/accounts/ict/dashboard/hostel/hostel-reports",
+         },
+         {
+            title: "Hostel Maintenance",
+            href: "/accounts/ict/dashboard/hostel/hostel-maintenance",
+         },
+         {
+            title: "Student Feedback",
+            href: "/accounts/ict/dashboard/hostel/feedbacks",
+         },
+         {
+            title: "Settings",
+            href: "/accounts/ict/dashboard/hostel/settings",
+         },
+      ],
    },
    {
       title: "Course Registration",

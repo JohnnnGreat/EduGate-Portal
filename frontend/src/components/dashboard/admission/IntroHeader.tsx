@@ -4,15 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import useGetAdmission from "@/hooks/useGetAdmission";
-import {
-   Ban,
-   CheckCircleIcon,
-   ClockIcon,
-   CreditCard,
-   GraduationCap,
-   TriangleAlert,
-   XCircleIcon,
-} from "lucide-react";
+import { Ban, CheckCircleIcon, ClockIcon, CreditCard, GraduationCap, TriangleAlert, XCircleIcon } from "lucide-react";
 import { departmentMapping } from "../constants";
 import axiosUserClient from "@/lib/api/axiosClient";
 import PaystackPop from "@paystack/inline-js";
@@ -72,9 +64,7 @@ const IntroHeader = () => {
    const getDeparmentLabel = (facultyName: string, departmentName: string) => {
       console.log(facultyName, departmentName);
       // Check if the facultyName exists in departmentMapping
-      const department = departmentMapping[facultyName]?.filter((item) =>
-         item?.value?.includes(departmentName),
-      );
+      const department = departmentMapping[facultyName]?.filter((item) => item?.value?.includes(departmentName));
 
       // If department is not found or is empty, return undefined
       if (!department || department.length === 0) {
@@ -139,9 +129,7 @@ const IntroHeader = () => {
    // Function to verify the payment on the backend
    const verifyPayment = async (reference) => {
       try {
-         const response = await axiosUserClient.get(
-            `http://localhost:5000/api/payments/verify/${reference}`,
-         );
+         const response = await axiosUserClient.get(`http://localhost:5000/api/payments/verify/${reference}`);
          if (response.data.payment.status === "Success") {
             alert("Payment verified successfully!");
          } else {
@@ -159,10 +147,7 @@ const IntroHeader = () => {
             <div className="bg-white p-[2rem] rounded-[20px]">
                <h1 className="text-[1.3rem] font-bold ">Application Portal</h1>
                <p className="text-[#000]/40 text-[.9rem] my-[.5rem] leading-relaxed">
-                  This portal will guide you step-by-step through the admission process. Please make
-                  sure to provide accurate information at each stage. By clicking 'Start Your
-                  Application', you’ll begin your personalized admission process. Let’s get started
-                  on this exciting journey together!
+                  This portal will guide you step-by-step through the admission process. Please make sure to provide accurate information at each stage. By clicking 'Start Your Application', you’ll begin your personalized admission process. Let’s get started on this exciting journey together!
                </p>
 
                {/* Navigation Links */}
@@ -171,11 +156,7 @@ const IntroHeader = () => {
                      {nav.map((item, index) => (
                         <button
                            key={index}
-                           className={`${
-                              item.active
-                                 ? "bg-[#02333F] ] text-white"
-                                 : "bg-transparent text-[#02333F]  border-[#02333f80] border-[2px]"
-                           } py-[1rem] px-[1.3rem] rounded-[10px] shadow`}
+                           className={`${item.active ? "bg-[#02333F] ] text-white" : "bg-transparent text-[#02333F]  border-[#02333f80] border-[2px]"} py-[1rem] px-[1.3rem] rounded-[10px] shadow`}
                            disabled={setDisabled}
                            onClick={() => {
                               handleNavChange(item);
@@ -201,23 +182,16 @@ const IntroHeader = () => {
                )}
             </div>
          ) : (
-            <div className="admission-status-container p-8 rounded-lg">
+            <div className="admission-status-container md:p-8 rounded-lg">
                {/* Header Section */}
                <header className="mb-6">
-                  <h1 className="text-2xl font-semibold text-[#02333F]">
-                     Your Current Admission Status
-                  </h1>
-                  <p className="text-gray-600 mt-2">
-                     You have successfully applied. Below are the details of your application and
-                     admission status.
-                  </p>
+                  <h1 className="text-2xl font-semibold text-[#02333F]">Your Current Admission Status</h1>
+                  <p className="text-gray-600 mt-2">You have successfully applied. Below are the details of your application and admission status.</p>
                </header>
 
                {/* Application Information */}
                <section className="application-info bg-white p-6 rounded-lg shadow-sm mb-6">
-                  <h2 className="text-xl font-medium text-[#02333F] mb-4">
-                     Application Information
-                  </h2>
+                  <h2 className="text-xl font-medium text-[#02333F] mb-4">Application Information</h2>
                   <div className="grid grid-cols-2 gap-4">
                      <div>
                         <h1 className="font-light text-[#000000ad]">Application Number</h1>
@@ -225,18 +199,12 @@ const IntroHeader = () => {
                      </div>
                      <div>
                         <h1 className="font-light text-[#000000ad]">Program Applied</h1>
-                        <p className="text-gray-700 font-bold">
-                           {" "}
-                           {getDeparmentLabel(faculty, department)}
-                        </p>
+                        <p className="text-gray-700 font-bold"> {getDeparmentLabel(faculty, department)}</p>
                      </div>
 
                      <div>
                         <h1 className="font-light text-[#000000ad]">Date of Application</h1>
-                        <p className="text-gray-700 font-bold">
-                           {" "}
-                           {new Date(updatedAt).toLocaleDateString("en-GB").replace(/\//g, "/")}
-                        </p>
+                        <p className="text-gray-700 font-bold"> {new Date(updatedAt).toLocaleDateString("en-GB").replace(/\//g, "/")}</p>
                      </div>
                   </div>
                </section>
@@ -246,50 +214,16 @@ const IntroHeader = () => {
                   <h2 className="text-xl font-medium text-[#02333F] mb-4">Admission Status</h2>
                   <div className="flex items-center">
                      {/* Status Icon */}
-                     <div
-                        className={`status-icon w-12 h-12 rounded-full flex items-center justify-center ${
-                           status === "Admitted"
-                              ? "bg-green-200"
-                              : status === "Not Admitted"
-                              ? "bg-red-200"
-                              : status === "Withdrawn"
-                              ? "bg-yellow-200"
-                              : status === "Graduated"
-                              ? "bg-blue-200"
-                              : "bg-gray-200"
-                        }`}
-                     >
+                     <div className={`status-icon w-12 h-12 rounded-full flex items-center justify-center ${status === "Admitted" ? "bg-green-200" : status === "Not Admitted" ? "bg-red-200" : status === "Withdrawn" ? "bg-yellow-200" : status === "Graduated" ? "bg-blue-200" : "bg-gray-200"}`}>
                         {/* Dynamic Icon based on status */}
-                        {status === "Admitted" && (
-                           <CheckCircleIcon className="text-green-600 w-6 h-6" />
-                        )}
-                        {status === "Not Admitted" && (
-                           <XCircleIcon className="text-red-600 w-6 h-6" />
-                        )}
-                        {status === "Withdrawn" && (
-                           <TriangleAlert className="text-yellow-600 w-6 h-6" />
-                        )}
-                        {status === "Graduated" && (
-                           <GraduationCap className="text-blue-600 w-6 h-6" />
-                        )}
+                        {status === "Admitted" && <CheckCircleIcon className="text-green-600 w-6 h-6" />}
+                        {status === "Not Admitted" && <XCircleIcon className="text-red-600 w-6 h-6" />}
+                        {status === "Withdrawn" && <TriangleAlert className="text-yellow-600 w-6 h-6" />}
+                        {status === "Graduated" && <GraduationCap className="text-blue-600 w-6 h-6" />}
                         {status === "Suspended" && <Ban className="text-gray-600 w-6 h-6" />}
                      </div>
                      <div className="ml-4">
-                        <p
-                           className={`text-lg font-semibold ${
-                              status === "Admitted"
-                                 ? "text-green-600"
-                                 : status === "Not Admitted"
-                                 ? "text-red-600"
-                                 : status === "Withdrawn"
-                                 ? "text-yellow-600"
-                                 : status === "Graduated"
-                                 ? "text-blue-600"
-                                 : "text-gray-600"
-                           }`}
-                        >
-                           {status}
-                        </p>
+                        <p className={`text-lg font-semibold ${status === "Admitted" ? "text-green-600" : status === "Not Admitted" ? "text-red-600" : status === "Withdrawn" ? "text-yellow-600" : status === "Graduated" ? "text-blue-600" : "text-gray-600"}`}>{status}</p>
                      </div>
                   </div>
 
@@ -297,34 +231,13 @@ const IntroHeader = () => {
                   <div className="mt-4">
                      {status === "Admitted" && (
                         <div className="text-green-700 bg-green-100 p-4 rounded-lg">
-                           <strong>Congratulations!</strong> You have been admitted. Please check
-                           your email for the admission letter and follow the instructions provided.
+                           <strong>Congratulations!</strong> You have been admitted. Please check your email for the admission letter and follow the instructions provided.
                         </div>
                      )}
-                     {status === "Not Admitted" && (
-                        <div className="text-red-700 bg-red-100 p-4 rounded-lg">
-                           Unfortunately, your application was not accepted. Feel free to contact
-                           the admissions office for more details or feedback.
-                        </div>
-                     )}
-                     {status === "Withdrawn" && (
-                        <div className="text-yellow-700 bg-yellow-100 p-4 rounded-lg">
-                           Your application has been withdrawn. For more details, contact the
-                           admissions office.
-                        </div>
-                     )}
-                     {status === "Graduated" && (
-                        <div className="text-blue-700 bg-blue-100 p-4 rounded-lg">
-                           Congratulations! You have successfully graduated. Best wishes for your
-                           future endeavors.
-                        </div>
-                     )}
-                     {status === "Suspended" && (
-                        <div className="text-gray-700 bg-gray-100 p-4 rounded-lg">
-                           Your application has been suspended. Please contact the admissions office
-                           for further clarification.
-                        </div>
-                     )}
+                     {status === "Not Admitted" && <div className="text-red-700 bg-red-100 p-4 rounded-lg">Unfortunately, your application was not accepted. Feel free to contact the admissions office for more details or feedback.</div>}
+                     {status === "Withdrawn" && <div className="text-yellow-700 bg-yellow-100 p-4 rounded-lg">Your application has been withdrawn. For more details, contact the admissions office.</div>}
+                     {status === "Graduated" && <div className="text-blue-700 bg-blue-100 p-4 rounded-lg">Congratulations! You have successfully graduated. Best wishes for your future endeavors.</div>}
+                     {status === "Suspended" && <div className="text-gray-700 bg-gray-100 p-4 rounded-lg">Your application has been suspended. Please contact the admissions office for further clarification.</div>}
                   </div>
                </section>
 
@@ -337,10 +250,7 @@ const IntroHeader = () => {
                         <li>Complete the enrollment process by the specified deadline.</li>
                         <li>Submit any additional documents required for final registration.</li>
                         <li>Pay the first installment of tuition fees.</li>
-                        <li>
-                           Attend the orientation session (details provided in the Admission
-                           Letter).
-                        </li>
+                        <li>Attend the orientation session (details provided in the Admission Letter).</li>
                      </ul>
                   </section>
                )}
@@ -360,10 +270,7 @@ const IntroHeader = () => {
                {/* Additional Information */}
                <section className="additional-info bg-white p-6 rounded-lg shadow-sm">
                   <h2 className="text-xl font-medium text-[#02333F] mb-4">Need Assistance?</h2>
-                  <p className="text-gray-600">
-                     For any queries or assistance regarding your application, please contact our
-                     admissions office:
-                  </p>
+                  <p className="text-gray-600">For any queries or assistance regarding your application, please contact our admissions office:</p>
                   <p className="mt-2">
                      <strong>Email:</strong>{" "}
                      <a
