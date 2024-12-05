@@ -28,6 +28,30 @@ That’s the story for now. Oh, and the GitHub is live too!
 
 This university portal project has been temporarily discontinued due to technical limitations. The current codebase exceeded the computational capacity of my development environment.
 
+## Current Features of the Project
+
+### User Dashboard
+  1. Admission Processing with real time updates
+  2. Payments Gateway Implementation using Paystack
+  3. Support Implementation (Contact, Raising Tickets, Checking Ticket Status)
+  4. Profile Section Implementation
+  6. Hostel Booking and Selection
+
+### Admin Dashboard
+  1. Payment Overview
+  2. Payment Record
+  3. Payment Verification
+  4. Generate Global Payment Records and Summary
+  5. All Staffs Display
+  6. Staffs Profile
+
+### Technical Stack
+  1. Frontend - Next.js, Tanstack Query, ShadcnUI, TailwindCSS, Paystack
+  2. Backend - Node.js, Express.js, Node Cron,
+  3. Database - MongoDB (Mongoose as ORM)
+  5. Files Upload - Appwrite Storag
+
+
 ## Interested Collaborators
 
 If you are interested in discussing the project, potential improvements, or collaboration opportunities, please contact me via email at: johnossai20@gmail.com
