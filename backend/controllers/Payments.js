@@ -2,62 +2,61 @@
 
 const Admission = require("../models/Application");
 const Payment = require("../models/Payment");
-const axios = require("axios"); // For making HTTP requests (e.g., to Paystack)
-const { v4: uuidv4 } = require("uuid");
 const User = require("../models/User");
-const { paymentList } = require("../constant");
-
-const FormData = require("form-data");
-const pdf = require("pdf-creator-node");
-const path = require("path");
-const fs = require("fs").promises;
-const puppeteer = require("puppeteer"); // Make sure to install this
-const { AcroButtonFlags } = require("pdf-lib");
-const { pdfOptions, getFacultyLabel, getDeparmentLabel } = require("../utils");
-const { generatePaymentReport } = require("../Templates/paidStudentsReport");
+const axios = require("axios");
+const { v4: uuidv4 } = require("uuid");
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
-   const { studentId, paymentType, amount, academicSession, semester } = req.body;
+   const { paymentType, amount } = req.body;
 
-   const receiptNumber = uuidv4();
    try {
-      const existingAdmission = await Admission.find({
-         admissionNumber: req.user.admissionNumber,
-      });
+      const userId = req.user.userId;
+      const admissionNumber = req.user.admissionNumber;
 
-      // Generate a unique transaction reference
-      const reference = `UNIPORTAL_${new Date().getTime()}_${req.user.userId}`;
+      const existingAdmission = await Admission.findOne({ admissionNumber });
+      if (!existingAdmission) {
+         return res.status(404).json({ message: "Admission record not found." });
+      }
 
       const existingPayment = await Payment.findOne({
+         studentId: userId,
          paymentType,
          status: "Success",
       });
 
-      const userInformation = await User.findById(req.user.userId);
       if (existingPayment) {
-         return res.status(401).json({
-            message: "Payment of this type has already been made",
+         return res.status(400).json({
+            message: "Payment of this type has already been made.",
             payment: existingPayment,
          });
-      } else {
-         const payment = new Payment({
-            studentId: req.user.userId,
-            paymentType,
-            amount,
-            reference,
-            academicSessio: existingAdmission?.academicSession,
-            semester: "First Semester",
-            receiptNumber,
-         });
-
-         await payment.save();
-
-         res.status(201).json({ message: "Payment initiated successfully", payment });
       }
+
+      const reference = `UNIPORTAL_${Date.now()}_${userId}`;
+      const receiptNumber = uuidv4();
+
+      const newPayment = new Payment({
+         studentId: userId,
+         paymentType,
+         amount,
+         reference,
+         academicSession: existingAdmission.academicSession,
+         semester: "First Semester",
+         receiptNumber,
+      });
+
+      await newPayment.save();
+
+      return res.status(201).json({
+         message: "Payment initiated successfully.",
+         payment: newPayment,
+      });
    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Payment creation failed", error: error.message });
+      console.error("Error creating payment:", error);
+      return res.status(500).json({
+         message: "Payment creation failed.",
+         error: error.message,
+      });
    }
 };
 
@@ -66,75 +65,89 @@ exports.verifyPayment = async (req, res) => {
    const { reference } = req.params;
 
    try {
-      const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
-         headers: {
-            Authorization: `Bearer sk_test_a29d35e1ffda0738696d0098fca366d0f4537923`,
-         },
+      const { data: paystackResponse } = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+         headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
       });
 
-      const { data } = response.data;
-
-      if (data.status === "success") {
-         // Update payment status in the database
+      if (paystackResponse.data.status === "success") {
          const updatedPayment = await Payment.findOneAndUpdate(
             { reference },
-            { status: "Success", verified: true, receiptNumber: generateReceiptNumber() },
+            {
+               status: "Success",
+               verified: true,
+               receiptNumber: generateReceiptNumber(),
+            },
             { new: true },
          );
 
-         return res.json({ message: "Payment verified successfully", payment: updatedPayment });
-      } else {
-         return res.status(400).json({ message: "Payment verification failed" });
+         return res.json({
+            message: "Payment verified successfully.",
+            payment: updatedPayment,
+         });
       }
+
+      return res.status(400).json({ message: "Payment verification failed." });
    } catch (error) {
-      res.status(500).json({ message: "Payment verification error", error: error.message });
+      console.error("Error verifying payment:", error);
+      return res.status(500).json({
+         message: "Payment verification error.",
+         error: error.message,
+      });
    }
 };
 
+// Retrieve payment list by user level
 exports.getPaymentListByLevel = async (req, res) => {
    const studentId = req.user.userId;
 
    try {
       const userAdmission = await Admission.findOne({ user: studentId });
+
       if (!userAdmission) {
          return res.status(404).json({ message: "User not found" });
       }
 
-      // Get the Curent Level of the User
-      const userLevel = `${userAdmission?.program?.level} Level`;
+      const userLevel = `${userAdmission.program.level} Level`;
+      const allPaymentsNecessary = paymentList[userLevel] || [];
 
-      // get All Payments to be done by user based on the Level
-      const allPaymentsNeccessary = paymentList[userLevel];
-
-      res.status(200).send({
+      res.status(200).json({
          message: "Payment List retrieved successfully",
-         paymentList: allPaymentsNeccessary,
+         paymentList: allPaymentsNecessary,
          userLevel,
          userAdmission,
       });
    } catch (error) {
-      res.status(500).json({ message: "Error Fetching Payment List", error: error.message });
+      res.status(500).json({
+         message: "Error Fetching Payment List",
+         error: error.message,
+      });
    }
 };
 
-// Get all payments for a specific student
+// Retrieve all payments for a specific student
 exports.getStudentPayments = async (req, res) => {
    const studentId = req.user.userId;
 
    try {
       const payments = await Payment.find({ studentId }).sort({ transactionDate: -1 });
-      res.status(200).json({ message: "Payments retrieved successfully", payments });
+      res.status(200).json({
+         message: "Payments retrieved successfully",
+         payments,
+      });
    } catch (error) {
-      res.status(500).json({ message: "Error retrieving payments", error: error.message });
+      res.status(500).json({
+         message: "Error retrieving payments",
+         error: error.message,
+      });
    }
 };
 
+// Check if a specific type of payment has been made
 exports.checkPayment = async (req, res) => {
    const { type } = req.body;
    const studentId = req.user.userId;
 
    try {
-      // Check if a payment with the same type and studentId already exists
       const existingPayment = await Payment.findOne({
          studentId,
          paymentType: type,
@@ -142,7 +155,6 @@ exports.checkPayment = async (req, res) => {
       });
 
       if (existingPayment) {
-         // Payment of the specified type has already been made
          return res.status(200).json({
             message: "Payment of this type has already been made",
             payment: existingPayment,
@@ -150,16 +162,18 @@ exports.checkPayment = async (req, res) => {
          });
       }
 
-      // Payment of the specified type has not been made
       return res.status(404).json({
          message: "No payment of this type has been made yet",
       });
    } catch (error) {
-      res.status(500).json({ message: "Error checking payment", error: error.message });
+      res.status(500).json({
+         message: "Error checking payment",
+         error: error.message,
+      });
    }
 };
 
-// Get a specific payment by reference
+/// Retrieve a specific payment by reference
 exports.getPaymentByReference = async (req, res) => {
    const { reference } = req.params;
 
@@ -170,38 +184,34 @@ exports.getPaymentByReference = async (req, res) => {
          return res.status(404).json({ message: "Payment not found" });
       }
 
-      res.status(200).json({ message: "Payment retrieved successfully", payment });
+      res.status(200).json({
+         message: "Payment retrieved successfully",
+         payment,
+      });
    } catch (error) {
-      res.status(500).json({ message: "Error retrieving payment", error: error.message });
+      res.status(500).json({
+         message: "Error retrieving payment",
+         error: error.message,
+      });
    }
 };
 
+// Check if all major payments have been made
 exports.checkMajorPayments = async (req, res) => {
    const studentId = req.user.userId;
 
    try {
       const userAdmission = await Admission.findOne({ user: studentId });
+
       if (!userAdmission) {
          return res.status(404).json({ message: "User not found" });
       }
 
-      // Get the Curent Level of the User
-      const userLevel = `${userAdmission?.program?.level} Level`;
+      const userLevel = `${userAdmission.program.level} Level`;
+      const allPaymentsNecessary = paymentList[userLevel] || [];
 
-      // get All Payments to be done by user based on the Level
-      const allPaymentsNeccessary = paymentList[userLevel];
+      const majorPaymentTypes = allPaymentsNecessary.filter((payment) => payment.required === true).map((payment) => payment.type);
 
-      const majorPayments = allPaymentsNeccessary.filter((paymentType) => {
-         return paymentType.required === true;
-      });
-
-      const majorPaymentTypes = [];
-
-      majorPayments.map((item) => {
-         majorPaymentTypes.push(item.type);
-      });
-
-      // Check if payments of major types have been made
       const payments = await Payment.find({
          studentId,
          paymentType: { $in: majorPaymentTypes },
@@ -209,7 +219,6 @@ exports.checkMajorPayments = async (req, res) => {
       });
 
       if (payments.length === majorPaymentTypes.length) {
-         // All major payments have been made
          return res.status(200).json({
             message: "All major payments have been made",
             payments,
@@ -217,16 +226,19 @@ exports.checkMajorPayments = async (req, res) => {
          });
       }
 
-      // Not all major payments have been made
       return res.status(404).json({
          message: "Not all major payments have been made",
-         payments: payments,
+         payments,
       });
    } catch (error) {
-      res.status(500).json({ message: "Error checking major payments", error: error.message });
+      res.status(500).json({
+         message: "Error checking major payments",
+         error: error.message,
+      });
    }
 };
 
+// Check if the Acceptance Fee has been paid
 exports.checkAcceptanceFee = async (req, res) => {
    const studentId = req.user.userId;
 
@@ -249,129 +261,114 @@ exports.checkAcceptanceFee = async (req, res) => {
          message: "Acceptance Fee has not been paid yet",
       });
    } catch (error) {
-      res.status(500).json({ message: "Error checking Acceptance Fee", error: error.message });
+      res.status(500).json({
+         message: "Error checking Acceptance Fee",
+         error: error.message,
+      });
    }
 };
 
+// Utility function to generate CSV data
+const generateCSVData = (payments) => {
+   const csvHeaders = "Name,Email,PaymentType,Amount,TransactionDate,Status\n";
+   const csvRows = payments.map((payment) => [payment.studentId.name, payment.studentId.email, payment.paymentType, payment.amount, payment.transactionDate, payment.status].join(",")).join("\n");
+
+   return csvHeaders + csvRows;
+};
+
+// Utility function to generate XLSX data
+const generateXLSXData = (payments) => {
+   return payments.map((payment) => ({
+      Name: `${payment.studentId.firstName} ${payment.studentId.lastName}`,
+      Email: payment.studentId.email,
+      PaymentType: payment.paymentType,
+      Amount: payment.amount,
+      TransactionDate: payment.transactionDate,
+      Status: payment.status,
+   }));
+};
+
+// Utility function to upload file
+const uploadFile = async (file, filename, contentType) => {
+   const formData = new FormData();
+   formData.append("file", file, filename);
+
+   const response = await axios.post(process.env.FILE_UPLOAD_ENDPOINT, formData, {
+      headers: {
+         "Content-Type": contentType,
+      },
+   });
+
+   return response.data.fileUrl;
+};
+
+// Get all payments
 exports.getAllPayments = async (req, res) => {
    try {
       const payments = await Payment.find().sort({ transactionDate: -1 }).populate("studentId");
-      res.status(200).json({ message: "Payments retrieved successfully", payments });
+
+      res.status(200).json({
+         message: "Payments retrieved successfully",
+         payments,
+      });
    } catch (error) {
-      res.status(500).json({ message: "Error retrieving payments", error: error.message });
+      res.status(500).json({
+         message: "Error retrieving payments",
+         error: error.message,
+      });
    }
 };
 
+// Export transactions
 exports.exportTransactions = async (req, res) => {
    const { format } = req.query;
+   const supportedFormats = ["csv", "xlsx"];
 
    try {
+      if (!supportedFormats.includes(format)) {
+         return res.status(400).json({
+            message: "Invalid format. Please use csv or xlsx.",
+         });
+      }
+
       const payments = await Payment.find().sort({ transactionDate: -1 }).populate("studentId");
 
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `CSV_TRX_${timestamp}.csv`;
-      const filepath = path.join(__dirname, filename);
+      const uniqueId = uuidv4().slice(0, 8);
+      const filename = `transactions_${timestamp}_${uniqueId}.${format}`;
 
+      let fileUrl;
       if (format === "csv") {
-         const csvHeaders = "Name,Email,PaymentType,Amount,TransactionDate,Status\n";
-         const csv = payments
-            .map((payment) => {
-               return [
-                  payment.studentId.name,
-                  payment.studentId.email,
-                  payment.paymentType,
-                  payment.amount,
-                  payment.transactionDate,
-                  payment.status,
-               ].join(",");
-            })
-            .join("\n");
-
-         // Combine headers and data
-         const fullCsv = csvHeaders + csv;
-
-         // Save the CSV to a temporary file
-         const tempFilePath = `./temp/${filename}`;
-
-         require("fs").writeFileSync(tempFilePath, fullCsv);
-
-         const formData = new FormData();
-         formData.append("file", require("fs").createReadStream(tempFilePath));
-
-         // Make POST request to upload endpoint
-         const response = await axios.post(
-            "https://appwrite-express-file-upload.onrender.com/upload",
-            formData,
-            {
-               headers: {
-                  "Content-Type": "text/csv",
-               },
-            },
-         );
-
-         const { fileUrl } = response.data;
-
-         await fs.unlink(`./temp/${filename}`);
-
-         res.json({ message: "CSV exported successfully", fileUrl });
-      } else if (format === "xlsx") {
-         // Generate a unique filename
-         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-         const uniqueId = uuidv4().slice(0, 8);
-         const filename = `transactions_${timestamp}_${uniqueId}.xlsx`;
-         const xlsx = require("xlsx");
-         const wb = xlsx.utils.book_new();
-
-         const exportData = payments.map((payment) => ({
-            Name: payment.studentId.firstName + " " + payment.studentId.lastName,
-            Email: payment.studentId.email,
-            PaymentType: payment.paymentType,
-            Amount: payment.amount,
-            TransactionDate: payment.transactionDate,
-            Status: payment.status,
-         }));
-
-         const ws = await xlsx.utils.json_to_sheet(exportData);
-
-         await xlsx.utils.book_append_sheet(wb, ws, "Transactions");
-         const buf = xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
-
-         // Create a Blob for XLSX as well
-         // const xlsxBlob = new Blob([buf], {
-         //    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-         // });
-
-         // Create FormData instance
-         const formData = new FormData();
-         formData.append("file", buf, filename);
-
-         // Make POST request to upload endpoint
-         const response = await axios.post(
-            "https://appwrite-express-file-upload.onrender.com/upload",
-            formData,
-            {
-               headers: {
-                  "Content-Type":
-                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-               },
-            },
-         );
-
-         const { fileUrl } = response.data;
-
-         res.json({ message: "XLSX exported successfully", fileUrl });
+         const csvContent = generateCSVData(payments);
+         fileUrl = await uploadFile(Buffer.from(csvContent), filename, "text/csv");
       } else {
-         return res.status(400).json({ message: "Invalid format. Please use csv or xlsx." });
+         const exportData = generateXLSXData(payments);
+         const wb = xlsx.utils.book_new();
+         const ws = xlsx.utils.json_to_sheet(exportData);
+
+         xlsx.utils.book_append_sheet(wb, ws, "Transactions");
+         const xlsxBuffer = xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
+
+         fileUrl = await uploadFile(xlsxBuffer, filename, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       }
+
+      res.json({
+         message: `${format.toUpperCase()} exported successfully`,
+         fileUrl,
+      });
    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error exporting transactions", error: error.message });
+      console.error("Export transactions error:", error);
+      res.status(500).json({
+         message: "Error exporting transactions",
+         error: error.message,
+      });
    }
 };
 
+// Verify transaction
 exports.verifyTransaction = async (req, res) => {
    const { reference } = req.params;
-   console.log(reference);
+
    try {
       const payment = await Payment.findOne({ reference });
 
@@ -380,31 +377,45 @@ exports.verifyTransaction = async (req, res) => {
       }
 
       if (payment.status === "Success") {
-         return res.status(200).json({ message: "Payment already verified, and is successful" });
+         return res.status(200).json({
+            message: "Payment already verified and successful",
+         });
       }
 
       const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
          headers: {
-            Authorization: `Bearer sk_test_a29d35e1ffda0738696d0098fca366d0f4537923`,
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
          },
       });
 
       const { data } = response.data;
 
-      if (data.status === "success") {
-         // Update payment status in the database
-         const updatedPayment = await Payment.findOneAndUpdate(
-            { reference },
-            { status: "Success", verified: true, receiptNumber: generateReceiptNumber() },
-            { new: true },
-         );
-
-         return res.json({ message: "Transaction verified successfully", payment: updatedPayment });
-      } else {
-         return res.status(400).json({ message: data?.gateway_response });
+      if (data.status !== "success") {
+         return res.status(400).json({
+            message: data?.gateway_response || "Transaction verification failed",
+         });
       }
+
+      const updatedPayment = await Payment.findOneAndUpdate(
+         { reference },
+         {
+            status: "Success",
+            verified: true,
+            receiptNumber: generateReceiptNumber(),
+         },
+         { new: true },
+      );
+
+      return res.json({
+         message: "Transaction verified successfully",
+         payment: updatedPayment,
+      });
    } catch (error) {
-      res.status(500).json({ message: "Transaction verification error", error: error.message });
+      console.error("Transaction verification error:", error);
+      res.status(500).json({
+         message: "Transaction verification error",
+         error: error.message,
+      });
    }
 };
 
@@ -419,10 +430,8 @@ const formatCurrency = (amount) => {
 // Generate a detailed payment report
 exports.generatePaymentReport = async (req, res) => {
    try {
-      // Fetch payments with populated student details
       const payments = await Payment.find().sort({ transactionDate: -1 }).populate("studentId");
 
-      // Aggregate payment statistics
       const paymentStats = {
          overall: {
             totalAmount: 0,
@@ -435,16 +444,13 @@ exports.generatePaymentReport = async (req, res) => {
          semesterStats: {},
       };
 
-      // Process each payment
       payments.map((payment) => {
          const paymentType = payment.paymentType;
-         const studentName =
-            payment.studentId?.firstName + "" + payment.studentId?.lastName || "Unknown Student";
+         const studentName = payment.studentId?.firstName + "" + payment.studentId?.lastName || "Unknown Student";
 
-         // Overall statistics
          paymentStats.overall.totalAmount += payment.amount;
          paymentStats.overall.totalCount++;
-         // Payment type statistics
+
          if (!paymentStats.byType[paymentType]) {
             paymentStats.byType[paymentType] = {
                totalAmount: 0,
@@ -454,7 +460,6 @@ exports.generatePaymentReport = async (req, res) => {
          paymentStats.byType[paymentType].totalAmount += payment.amount;
          paymentStats.byType[paymentType].count++;
 
-         // Student-wise statistics
          if (!paymentStats.byStudent[studentName]) {
             paymentStats.byStudent[studentName] = {
                totalAmount: 0,
@@ -465,15 +470,13 @@ exports.generatePaymentReport = async (req, res) => {
          paymentStats.byStudent[studentName].totalAmount += payment.amount;
          paymentStats.byStudent[studentName].count++;
 
-         // Student payment type tracking
          if (!paymentStats.byStudent[studentName].paymentTypes[paymentType]) {
             paymentStats.byStudent[studentName].paymentTypes[paymentType] = {
                totalAmount: 0,
                count: 0,
             };
          }
-         paymentStats.byStudent[studentName].paymentTypes[paymentType].totalAmount +=
-            payment.amount;
+         paymentStats.byStudent[studentName].paymentTypes[paymentType].totalAmount += payment.amount;
          paymentStats.byStudent[studentName].paymentTypes[paymentType].count++;
 
          if (payment.status === "Success") {
@@ -490,9 +493,7 @@ exports.generatePaymentReport = async (req, res) => {
          paymentStats.semesterStats[payment.semester].payments.push(payment);
       });
 
-      const ob = Object.entries(paymentStats.semesterStats).map(([semester, information]) =>
-         console.log(semester, information),
-      );
+      const ob = Object.entries(paymentStats.semesterStats).map(([semester, information]) => console.log(semester, information));
 
       // Generate professional HTML template
       const html = `
@@ -589,9 +590,7 @@ exports.generatePaymentReport = async (req, res) => {
                      .map(
                         (payment) => `
                         <tr>
-                              <td>${payment.studentId?.firstName || "Unknown"} ${
-                           payment.studentId?.lastName || ""
-                        }</td>
+                              <td>${payment.studentId?.firstName || "Unknown"} ${payment.studentId?.lastName || ""}</td>
                               <td>${payment.paymentType}</td>
                               <td>${payment.reference}</td>
                               <td>${formatCurrency(payment.amount)}</td>
@@ -626,9 +625,7 @@ exports.generatePaymentReport = async (req, res) => {
                            .map(
                               (payment) => `
                                  <tr>
-                                    <td>${payment.studentId?.firstName || "Unknown"} ${
-                                 payment.studentId?.lastName || ""
-                              }</td>
+                                    <td>${payment.studentId?.firstName || "Unknown"} ${payment.studentId?.lastName || ""}</td>
                                     <td>${payment.paymentType}</td>
                                     <td>${payment.reference}</td>
                                     <td>${formatCurrency(payment.amount)}</td>
@@ -663,12 +660,7 @@ exports.generatePaymentReport = async (req, res) => {
                               <td>${stats.count}</td>
                               <td>
                                  ${Object.entries(stats.paymentTypes)
-                                    .map(
-                                       ([type, typeStats]) =>
-                                          `${type}: ${formatCurrency(typeStats.totalAmount)} (${
-                                             typeStats.count
-                                          } payments)`,
-                                    )
+                                    .map(([type, typeStats]) => `${type}: ${formatCurrency(typeStats.totalAmount)} (${typeStats.count} payments)`)
                                     .join("<br>")}
                               </td>
                         </tr>
@@ -681,7 +673,6 @@ exports.generatePaymentReport = async (req, res) => {
       </html>
 `;
 
-      // Unique filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const filename = `payment-report_${timestamp}.pdf`;
       const filepath = path.join(__dirname, filename);
@@ -689,14 +680,10 @@ exports.generatePaymentReport = async (req, res) => {
       // PDF document configuration
       const document = {
          html: html,
-         data: {
-            // You can pass dynamic data here if needed
-         },
+
          path: filepath,
-         type: "", // Keep this empty or remove
       };
 
-      // Generate PDF
       const pdfBuffer = await pdf.create(document, pdfOptions);
 
       // Send the file
@@ -717,22 +704,18 @@ exports.generatePaymentReport = async (req, res) => {
             formData.append("file", fileBuffer, filename);
 
             // Example of uploading
-            const response = await axios.post(
-               "https://appwrite-express-file-upload.onrender.com/upload",
-               formData,
-               {
-                  headers: {
-                     "Content-Type": "application/pdf",
-                  },
-                  maxBodyLength: Infinity,
-                  maxContentLength: Infinity,
+            const response = await axios.post(process.env.FILE_UPLOAD_ENDPOINT, formData, {
+               headers: {
+                  "Content-Type": "application/pdf",
                },
-            );
+               maxBodyLength: Infinity,
+               maxContentLength: Infinity,
+            });
             const { fileUrl } = response?.data;
 
             await fs.unlink(filepath);
          } catch (cleanupError) {
-            // console.error("Error cleaning up PDF:", cleanupError);
+            console.error("Error cleaning up PDF:", cleanupError);
          }
       });
    } catch (error) {
@@ -773,18 +756,13 @@ exports.generateRecords = async (req, res) => {
                lastName: studentAdmission?.user.lastName,
                matNo: studentAdmission?.matNumber,
                faculty: getFacultyLabel(studentAdmission?.program.faculty),
-               department: getDeparmentLabel(
-                  studentAdmission?.program?.faculty,
-                  studentAdmission?.program?.department,
-               ),
+               department: getDeparmentLabel(studentAdmission?.program?.faculty, studentAdmission?.program?.department),
             };
 
             const paidByStudent = studentInformation.firstName + " " + studentInformation.lastName;
 
-            // Push to the paidStudents array
             paidStudentsRecord.paidStudents.push(studentInformation);
 
-            // All SuccessfullPayment Types
             if (!paidStudentsRecord.paymentType[paid.paymentType]) {
                paidStudentsRecord.paymentType[paid.paymentType] = {
                   total: 0,
@@ -796,11 +774,7 @@ exports.generateRecords = async (req, res) => {
             paidStudentsRecord.paymentType[paid.paymentType].paidBy.push(studentInformation);
          }
 
-         const htmlContent = await generatePaymentReport(
-            paidStudentsRecord.total,
-            paidStudentsRecord.paidStudents,
-            paidStudentsRecord.paymentType,
-         );
+         const htmlContent = await generatePaymentReport(paidStudentsRecord.total, paidStudentsRecord.paidStudents, paidStudentsRecord.paymentType);
 
          // Unique filename with timestamp
          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -810,15 +784,11 @@ exports.generateRecords = async (req, res) => {
          // PDF document configuration
          const document = {
             html: htmlContent,
-            data: {
-               // You can pass dynamic data here if needed
-            },
             path: filepath,
-            type: "", // Keep this empty or remove
+            type: "",
          };
 
-         // Generate PDF
-         const pdfBuffer = await pdf.create(document, pdfOptions);
+         await pdf.create(document, pdfOptions);
 
          try {
             const formData = new FormData();
@@ -827,18 +797,14 @@ exports.generateRecords = async (req, res) => {
 
             formData.append("file", fileBuffer, filename);
 
-            // Example of uploading
-            const response = await axios.post(
-               "https://appwrite-express-file-upload.onrender.com/upload",
-               formData,
-               {
-                  headers: {
-                     "Content-Type": "application/pdf",
-                  },
-                  maxBodyLength: Infinity,
-                  maxContentLength: Infinity,
+            const response = await axios.post(process.env.FILE_UPLOAD_ENDPOINT, formData, {
+               headers: {
+                  "Content-Type": "application/pdf",
                },
-            );
+               maxBodyLength: Infinity,
+               maxContentLength: Infinity,
+            });
+
             const { fileUrl } = response?.data;
 
             await fs.unlink(filepath);
@@ -864,6 +830,5 @@ exports.generateRecords = async (req, res) => {
 
 // Helper function to generate a unique receipt number
 function generateReceiptNumber() {
-   // Implement a unique receipt number generator
    return `REC_${Math.floor(Math.random() * 1000000000)}`;
 }

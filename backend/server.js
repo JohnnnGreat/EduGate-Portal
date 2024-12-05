@@ -10,6 +10,8 @@ const staffRoutes = require("./routes/staffRoutes");
 const cors = require("cors");
 const { createAdmin } = require("./controllers/Admin");
 
+require("dotenv").config();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
