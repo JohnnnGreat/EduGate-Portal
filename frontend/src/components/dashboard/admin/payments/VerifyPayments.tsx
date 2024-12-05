@@ -29,7 +29,7 @@ const VerifyPayments = () => {
          const transactionId = values.reference;
          const response = await verifyTrxAlt(transactionId);
 
-         console.log(response);
+         toast.success(response?.message);
 
          setIsError(false);
       } catch (error) {
@@ -85,9 +85,7 @@ const VerifyPayments = () => {
             </div>
             <div className="p-[1rem]">
                <h1>Bulk Verification</h1>
-               <p className="text-[#000]/50 mt-1">
-                  Enter Payment Reference Number or Receipt Number to confirm payment
-               </p>
+               <p className="text-[#000]/50 mt-1">Enter Payment Reference Number or Receipt Number to confirm payment</p>
 
                <Button
                   disabled

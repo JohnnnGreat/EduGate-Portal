@@ -1,17 +1,4 @@
-import {
-   Home,
-   DollarSign,
-   Book,
-   FileText,
-   User,
-   Settings,
-   LifeBuoy,
-   Megaphone,
-   BookOpen,
-   CheckCircle,
-   Users,
-   Info,
-} from "lucide-react";
+import { Home, DollarSign, Book, FileText, User, Settings, LifeBuoy, Megaphone, BookOpen, CheckCircle, Users, Info } from "lucide-react";
 
 export const adminDashboard = [
    {
@@ -57,11 +44,11 @@ export const adminDashboard = [
       sub: [
          {
             title: "All Staff",
-            href: "/accounts/ict/dashboard/payments/overview",
+            href: "/accounts/ict/dashboard/staff/add-staff",
          },
          {
             title: "Add New Staff",
-            href: "/accounts/ict/dashboard/payments/records",
+            href: "/accounts/ict/dashboard/staff/add-staff",
          },
          {
             title: "Staff Profiles",
