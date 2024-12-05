@@ -1,7 +1,8 @@
-const Staff = require("../models/Staff");
+const Staff = require("../models/Staffs");
 
 // Create new staff member
 exports.createStaff = async (req, res) => {
+   console.log(req.body);
    try {
       const newStaff = new Staff(req.body);
       const savedStaff = await newStaff.save();

@@ -52,7 +52,7 @@ export const adminDashboard = [
          },
          {
             title: "Staff Profiles",
-            href: "/accounts/ict/dashboard/payments/verification",
+            href: "/accounts/ict/dashboard/staff/staffs-profiles",
          },
          {
             title: "Department Management",

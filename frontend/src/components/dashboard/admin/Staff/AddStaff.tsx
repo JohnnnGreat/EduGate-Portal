@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +14,8 @@ import { UserPlus, Save, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
+import { axiosAdminClient } from "@/lib/api/axiosClient";
 
 const staffSchema = z.object({
    // Personal Info
@@ -69,8 +72,9 @@ export default function AddStaffForm() {
    });
 
    const onSubmit = async (data) => {
+      console.log(data);
       try {
-         const response = await axios.post("/api/staff", {
+         const response = await axiosAdminClient.post("/staff", {
             personalInfo: {
                firstName: data.firstName,
                lastName: data.lastName,
@@ -127,7 +131,7 @@ export default function AddStaffForm() {
    };
 
    return (
-      <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white rounded-lg ">
          <h2 className="text-2xl font-bold mb-6 flex items-center">
             <UserPlus className="mr-2" /> Add New Staff Member
          </h2>
@@ -149,7 +153,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter first name"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -166,7 +170,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter last name"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -187,7 +191,7 @@ export default function AddStaffForm() {
                               defaultValue={field.value}
                            >
                               <FormControl>
-                                 <SelectTrigger className="border bg-gray-300">
+                                 <SelectTrigger className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}>
                                     <SelectValue placeholder="Select gender" />
                                  </SelectTrigger>
                               </FormControl>
@@ -212,7 +216,7 @@ export default function AddStaffForm() {
                                  <FormControl>
                                     <Button
                                        variant={"outline"}
-                                       className={cn("w-full pl-3 text-left font-normal border bg-gray-300", !field.value && "text-muted-foreground")}
+                                       className={cn("w-full pl-3 py-[1.6rem] text-left font-normal border bg-white", !field.value && "text-muted-foreground")}
                                     >
                                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -251,7 +255,7 @@ export default function AddStaffForm() {
                                  type="email"
                                  placeholder="Enter email"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -269,7 +273,7 @@ export default function AddStaffForm() {
                                  type="tel"
                                  placeholder="Enter phone number"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -288,7 +292,7 @@ export default function AddStaffForm() {
                            <Input
                               placeholder="Enter full address"
                               {...field}
-                              className="border bg-gray-300"
+                              className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                            />
                         </FormControl>
                         <FormMessage />
@@ -308,7 +312,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter name"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -326,7 +330,7 @@ export default function AddStaffForm() {
                                  type="tel"
                                  placeholder="Enter phone number"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -343,7 +347,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter relationship"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -364,7 +368,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter employee ID"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -381,7 +385,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter department"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -401,7 +405,7 @@ export default function AddStaffForm() {
                               <Input
                                  placeholder="Enter designation"
                                  {...field}
-                                 className="border bg-gray-300"
+                                 className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                               />
                            </FormControl>
                            <FormMessage />
@@ -419,7 +423,7 @@ export default function AddStaffForm() {
                               defaultValue={field.value}
                            >
                               <FormControl>
-                                 <SelectTrigger className="border bg-gray-300">
+                                 <SelectTrigger className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}>
                                     <SelectValue placeholder="Select employment type" />
                                  </SelectTrigger>
                               </FormControl>
@@ -483,7 +487,7 @@ export default function AddStaffForm() {
                               defaultValue={field.value}
                            >
                               <FormControl>
-                                 <SelectTrigger className="border bg-gray-300">
+                                 <SelectTrigger className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}>
                                     <SelectValue placeholder="Select status" />
                                  </SelectTrigger>
                               </FormControl>
@@ -507,7 +511,7 @@ export default function AddStaffForm() {
                      <Input
                         placeholder="Add qualification"
                         onKeyDown={(e) => e.key === "Enter" && addListItem(setQualifications)(e)}
-                        className="border bg-gray-300 mr-2"
+                        className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                      />
                   </div>
                   {qualifications.map((qual, index) => (
@@ -565,7 +569,7 @@ export default function AddStaffForm() {
                      <Input
                         placeholder="Add previous job experience"
                         onKeyDown={(e) => e.key === "Enter" && addListItem(setPreviousExperience)(e)}
-                        className="border bg-gray-300 mr-2"
+                        className={`bg-white py-[1.6rem] mt-[0!important] shadow-none px-[1rem] outline-none`}
                      />
                   </div>
                   {previousExperience.map((exp, index) => (

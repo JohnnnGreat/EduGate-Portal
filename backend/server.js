@@ -6,7 +6,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const hostelRoutes = require("./routes/hostelRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
-const staffRoutes = require("./routes/staffRoutesRoutes");
+const staffRoutes = require("./routes/staffRoutes");
 const cors = require("cors");
 const { createAdmin } = require("./controllers/Admin");
 
