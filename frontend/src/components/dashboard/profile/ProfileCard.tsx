@@ -6,7 +6,7 @@ import React from "react";
 
 const ProfileCard = ({ profile }: { profile: User }) => {
    return (
-      <div className="flex gap-[2rem] items-center p-[2rem] rounded-[20px] bg-white mt-[1rem]">
+      <div className="flex flex-wrap gap-[2rem] items-center p-[2rem] rounded-[20px] bg-white mt-[1rem]">
          <div>
             <img
                src={profile?.profilePicture}
@@ -26,18 +26,13 @@ const ProfileCard = ({ profile }: { profile: User }) => {
                Email: <span className="font-normal text-[#000]/80">{profile?.email}</span>
             </h1>
             <h1 className="font-bold">
-               Phone Number:{" "}
-               <span className="font-normal text-[#000]/80">{profile?.phoneNumber}</span>
+               Phone Number: <span className="font-normal text-[#000]/80">{profile?.phoneNumber}</span>
             </h1>
             <h1 className="font-bold">
-               Residential Address:{" "}
-               <span className="font-normal text-[#000]/80">{profile?.address}</span>
+               Residential Address: <span className="font-normal text-[#000]/80">{profile?.address}</span>
             </h1>
             <h1 className="font-bold">
-               Date of Birth:{" "}
-               <span className="font-normal text-[#000]/80">
-                  {new Date(profile?.dateOfBirth).toLocaleDateString()}
-               </span>
+               Date of Birth: <span className="font-normal text-[#000]/80">{new Date(profile?.dateOfBirth).toLocaleDateString()}</span>
             </h1>
 
             <Button

@@ -23,15 +23,12 @@ const ProfileComponent = () => {
                   Welcome, <span className="font-normal">{userProfile?.lastName}</span>
                </h1>
             </div>
-            <p className="text-[#000000]/50 mt-[.8rem]">
-               This is your personal hub. Keep your information updated so you never miss an
-               important announcement, deadline, or opportunity. From here, you can edit your
-               details, review your academic records, and manage your account settings. Let's make
-               sure everything's up to date!
+            <p className="text-[#000000]/50 mt-[.8rem] text-[.9rem">
+               This is your personal hub. Keep your information updated so you never miss an important announcement, deadline, or opportunity. From here, you can edit your details, review your academic records, and manage your account settings. Let's make sure everything's up to date!
             </p>
          </div>
 
-         <div className="flex gap-[1rem]">
+         <div className="flex gap-[1rem] flex-wrap">
             {/* Profile Card */}
             <ProfileCard profile={userProfile} />
             <SemesterInformation semesterInformation={admissionInformation} />

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import PaymentsHeader from "./PaymentsHeader";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import SelectField from "@/components/form/SelectField";
@@ -13,44 +13,42 @@ import { toast } from "react-toastify";
 import PaymentReport from "./PaymentReport";
 import Link from "next/link";
 
-const reportTypeEnum = z.enum([
-   "Paid Students Report",
-   "Outstanding Payments Report",
-   "Revenue Breakdown",
-]);
+const reportTypeEnum = z.enum(["Paid Students Report", "Outstanding Payments Report", "Revenue Breakdown"]);
 
 const paymentSchema = z.object({
    reportType: reportTypeEnum,
 });
-const GenerateRecordsComponent = () => {
+
+type PaymentFormData = z.infer<typeof paymentSchema>;
+
+const GenerateRecordsComponent: React.FC = () => {
    const paymentOptions = [
       { label: "Revenue Breakdown", value: "Revenue Breakdown" },
       { label: "Outstanding Payments Report", value: "Outstanding Payments Report" },
       { label: "Paid Students Report", value: "Paid Students Report" },
    ];
 
-   const form = useForm<z.infer<typeof paymentSchema>>({
+   const form = useForm<PaymentFormData>({
       resolver: zodResolver(paymentSchema),
       defaultValues: {},
    });
 
-   const [isLoading, setIsLoading] = useState(false);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
+   const [reportPayload, setReportPayload] = useState<any | null>(null);
+   const [fileUrl, setFileUrl] = useState<string>("");
 
-   const [reportPayload, setReportPayload] = useState(null);
-
-   const [fileUrl, setFileUrl] = useState("");
-   const onSubmit = async (value: any) => {
+   const onSubmit: SubmitHandler<PaymentFormData> = async (value) => {
       try {
+         setIsLoading(true);
          const response = await generateReportType(value.reportType);
          toast.success(response?.message);
 
-         console.log(response);
          setReportPayload(response?.payload);
-
          setFileUrl(response?.fileUrl);
-      } catch (error) {
+      } catch (error: any) {
          toast.error(error?.message);
-         console.log(error);
+      } finally {
+         setIsLoading(false);
       }
    };
 

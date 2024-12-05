@@ -14,20 +14,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import NextOfKin from "../shared/NextOfKin";
 
-const paymentTypeEnum = z.enum([
-   "Tuition Fee",
-   "Acceptance Fee",
-   "Hostel Fee",
-   "Course Registration Fee",
-   "Library Fine",
-   "Convocation Fee",
-   "Matriculation",
-   "ICT Fee",
-   "Department Fee",
-   "Faculty Fee",
-   "Hostel",
-   "Other",
-]);
+const paymentTypeEnum = z.enum(["Tuition Fee", "Acceptance Fee", "Hostel Fee", "Course Registration Fee", "Library Fine", "Convocation Fee", "Matriculation", "ICT Fee", "Department Fee", "Faculty Fee", "Hostel", "Other"]);
 
 const paymentOptions = [
    { label: "Tuition Fee", value: "Tuition Fee" },
@@ -87,15 +74,11 @@ const PaymentsComponent = () => {
                <h1 className="text-[2rem] font-bold">My Payments</h1>
             </div>
 
-            <div className="grid grid-cols-2 gap-[1rem] h-[300px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[1rem] md:h-[300px]">
                {paymentsAllDone ? (
                   <div className="p-[2rem] bg-white rounded-[20px] my-[1rem]">
                      <h1 className="my-[1rem] font-light text-[1.2rem]">All Payments Completed!</h1>
-                     <p className="text-[#555] text-[.9rem] mb-[1.5rem] mt-[1rem]">
-                        Congratulations! You’ve completed all the necessary payments. However, there
-                        are still some steps left to finish your registration. Please proceed to
-                        provide additional information as required.
-                     </p>
+                     <p className="text-[#555] text-[.9rem] mb-[1.5rem] mt-[1rem]">Congratulations! You’ve completed all the necessary payments. However, there are still some steps left to finish your registration. Please proceed to provide additional information as required.</p>
                      <Button
                         onClick={() => {
                            setOpenDialog(true);
@@ -137,9 +120,7 @@ const PaymentsComponent = () => {
                      {paymentLists?.map((payment) => (
                         <div className="border-b p-[1rem] flex justify-between">
                            <h1 className="text-[.9rem]">{payment?.type}</h1>
-                           <p className="text-[#00000079] text-[.7rem]">
-                              {payment?.required ? "Required" : "Not Required"}
-                           </p>
+                           <p className="text-[#00000079] text-[.7rem]">{payment?.required ? "Required" : "Not Required"}</p>
                         </div>
                      ))}
                   </div>
